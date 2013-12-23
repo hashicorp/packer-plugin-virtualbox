@@ -1,4 +1,4 @@
-package virtualbox
+package common
 
 import (
 	"fmt"
@@ -14,13 +14,16 @@ import (
 // This step attaches the ISO to the virtual machine.
 //
 // Uses:
+//   driver Driver
+//   ui packer.Ui
+//   vmName string
 //
 // Produces:
-type stepAttachFloppy struct {
+type StepAttachFloppy struct {
 	floppyPath string
 }
 
-func (s *stepAttachFloppy) Run(state multistep.StateBag) multistep.StepAction {
+func (s *StepAttachFloppy) Run(state multistep.StateBag) multistep.StepAction {
 	// Determine if we even have a floppy disk to attach
 	var floppyPath string
 	if floppyPathRaw, ok := state.GetOk("floppy_path"); ok {
@@ -76,7 +79,7 @@ func (s *stepAttachFloppy) Run(state multistep.StateBag) multistep.StepAction {
 	return multistep.ActionContinue
 }
 
-func (s *stepAttachFloppy) Cleanup(state multistep.StateBag) {
+func (s *StepAttachFloppy) Cleanup(state multistep.StateBag) {
 	if s.floppyPath == "" {
 		return
 	}
@@ -100,7 +103,7 @@ func (s *stepAttachFloppy) Cleanup(state multistep.StateBag) {
 	}
 }
 
-func (s *stepAttachFloppy) copyFloppy(path string) (string, error) {
+func (s *StepAttachFloppy) copyFloppy(path string) (string, error) {
 	tempdir, err := ioutil.TempDir("", "packer")
 	if err != nil {
 		return "", err

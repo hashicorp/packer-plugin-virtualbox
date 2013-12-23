@@ -1,4 +1,4 @@
-package virtualbox
+package common
 
 import (
 	"fmt"
@@ -10,11 +10,14 @@ import (
 // machine that we may have added.
 //
 // Uses:
+//   driver Driver
+//   ui packer.Ui
+//   vmName string
 //
 // Produces:
-type stepRemoveDevices struct{}
+type StepRemoveDevices struct{}
 
-func (s *stepRemoveDevices) Run(state multistep.StateBag) multistep.StepAction {
+func (s *StepRemoveDevices) Run(state multistep.StateBag) multistep.StepAction {
 	driver := state.Get("driver").(Driver)
 	ui := state.Get("ui").(packer.Ui)
 	vmName := state.Get("vmName").(string)
@@ -37,23 +40,25 @@ func (s *stepRemoveDevices) Run(state multistep.StateBag) multistep.StepAction {
 		}
 	}
 
-	command := []string{
-		"storageattach", vmName,
-		"--storagectl", "IDE Controller",
-		"--port", "0",
-		"--device", "1",
-		"--medium", "none",
-	}
+	if _, ok := state.GetOk("attachedIso"); ok {
+		command := []string{
+			"storageattach", vmName,
+			"--storagectl", "IDE Controller",
+			"--port", "0",
+			"--device", "1",
+			"--medium", "none",
+		}
 
-	if err := driver.VBoxManage(command...); err != nil {
-		err := fmt.Errorf("Error detaching ISO: %s", err)
-		state.Put("error", err)
-		ui.Error(err.Error())
-		return multistep.ActionHalt
+		if err := driver.VBoxManage(command...); err != nil {
+			err := fmt.Errorf("Error detaching ISO: %s", err)
+			state.Put("error", err)
+			ui.Error(err.Error())
+			return multistep.ActionHalt
+		}
 	}
 
 	return multistep.ActionContinue
 }
 
-func (s *stepRemoveDevices) Cleanup(state multistep.StateBag) {
+func (s *StepRemoveDevices) Cleanup(state multistep.StateBag) {
 }

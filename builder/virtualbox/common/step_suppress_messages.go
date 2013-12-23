@@ -1,4 +1,4 @@
-package virtualbox
+package common
 
 import (
 	"fmt"
@@ -9,9 +9,9 @@ import (
 
 // This step sets some variables in VirtualBox so that annoying
 // pop-up messages don't exist.
-type stepSuppressMessages struct{}
+type StepSuppressMessages struct{}
 
-func (stepSuppressMessages) Run(state multistep.StateBag) multistep.StepAction {
+func (StepSuppressMessages) Run(state multistep.StateBag) multistep.StepAction {
 	driver := state.Get("driver").(Driver)
 	ui := state.Get("ui").(packer.Ui)
 
@@ -26,4 +26,4 @@ func (stepSuppressMessages) Run(state multistep.StateBag) multistep.StepAction {
 	return multistep.ActionContinue
 }
 
-func (stepSuppressMessages) Cleanup(multistep.StateBag) {}
+func (StepSuppressMessages) Cleanup(multistep.StateBag) {}

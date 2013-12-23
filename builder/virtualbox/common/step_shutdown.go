@@ -1,4 +1,4 @@
-package virtualbox
+package common
 
 import (
 	"errors"
@@ -14,26 +14,27 @@ import (
 //
 // Uses:
 //   communicator packer.Communicator
-//   config *config
 //   driver Driver
 //   ui     packer.Ui
 //   vmName string
 //
 // Produces:
 //   <nothing>
-type stepShutdown struct{}
+type StepShutdown struct {
+	Command string
+	Timeout time.Duration
+}
 
-func (s *stepShutdown) Run(state multistep.StateBag) multistep.StepAction {
+func (s *StepShutdown) Run(state multistep.StateBag) multistep.StepAction {
 	comm := state.Get("communicator").(packer.Communicator)
-	config := state.Get("config").(*config)
 	driver := state.Get("driver").(Driver)
 	ui := state.Get("ui").(packer.Ui)
 	vmName := state.Get("vmName").(string)
 
-	if config.ShutdownCommand != "" {
+	if s.Command != "" {
 		ui.Say("Gracefully halting virtual machine...")
-		log.Printf("Executing shutdown command: %s", config.ShutdownCommand)
-		cmd := &packer.RemoteCmd{Command: config.ShutdownCommand}
+		log.Printf("Executing shutdown command: %s", s.Command)
+		cmd := &packer.RemoteCmd{Command: s.Command}
 		if err := cmd.StartWithUi(comm, ui); err != nil {
 			err := fmt.Errorf("Failed to send shutdown command: %s", err)
 			state.Put("error", err)
@@ -42,8 +43,8 @@ func (s *stepShutdown) Run(state multistep.StateBag) multistep.StepAction {
 		}
 
 		// Wait for the machine to actually shut down
-		log.Printf("Waiting max %s for shutdown to complete", config.shutdownTimeout)
-		shutdownTimer := time.After(config.shutdownTimeout)
+		log.Printf("Waiting max %s for shutdown to complete", s.Timeout)
+		shutdownTimer := time.After(s.Timeout)
 		for {
 			running, _ := driver.IsRunning(vmName)
 			if !running {
@@ -57,7 +58,7 @@ func (s *stepShutdown) Run(state multistep.StateBag) multistep.StepAction {
 				ui.Error(err.Error())
 				return multistep.ActionHalt
 			default:
-				time.Sleep(1 * time.Second)
+				time.Sleep(500 * time.Millisecond)
 			}
 		}
 	} else {
@@ -74,4 +75,4 @@ func (s *stepShutdown) Run(state multistep.StateBag) multistep.StepAction {
 	return multistep.ActionContinue
 }
 
-func (s *stepShutdown) Cleanup(state multistep.StateBag) {}
+func (s *StepShutdown) Cleanup(state multistep.StateBag) {}
