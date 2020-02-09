@@ -4,75 +4,79 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/packer/helper/communicator"
+	"github.com/hashicorp/packer/template/interpolate"
 )
 
-func testSSHConfig() *SSHConfig {
-	return &SSHConfig{
+func testCommConfig() *CommConfig {
+	return &CommConfig{
 		Comm: communicator.Config{
-			SSHUsername: "foo",
+			SSH: communicator.SSH{
+				SSHUsername: "foo",
+			},
 		},
 	}
 }
 
-func TestSSHConfigPrepare(t *testing.T) {
-	c := testSSHConfig()
-	errs := c.Prepare(testConfigTemplate(t))
+func TestCommConfigPrepare(t *testing.T) {
+	c := testCommConfig()
+	errs := c.Prepare(interpolate.NewContext())
 	if len(errs) > 0 {
 		t.Fatalf("err: %#v", errs)
 	}
 
-	if c.SSHHostPortMin != 2222 {
-		t.Errorf("bad min ssh host port: %d", c.SSHHostPortMin)
+	if c.HostPortMin != 2222 {
+		t.Errorf("bad min communicator host port: %d", c.HostPortMin)
 	}
 
-	if c.SSHHostPortMax != 4444 {
-		t.Errorf("bad max ssh host port: %d", c.SSHHostPortMax)
+	if c.HostPortMax != 4444 {
+		t.Errorf("bad max communicator host port: %d", c.HostPortMax)
 	}
 
 	if c.Comm.SSHPort != 22 {
-		t.Errorf("bad ssh port: %d", c.Comm.SSHPort)
+		t.Errorf("bad communicator port: %d", c.Comm.SSHPort)
 	}
 }
 
-func TestSSHConfigPrepare_SSHHostPort(t *testing.T) {
-	var c *SSHConfig
+func TestCommConfigPrepare_SSHHostPort(t *testing.T) {
+	var c *CommConfig
 	var errs []error
 
 	// Bad
-	c = testSSHConfig()
-	c.SSHHostPortMin = 1000
-	c.SSHHostPortMax = 500
-	errs = c.Prepare(testConfigTemplate(t))
+	c = testCommConfig()
+	c.HostPortMin = 1000
+	c.HostPortMax = 500
+	errs = c.Prepare(interpolate.NewContext())
 	if len(errs) == 0 {
 		t.Fatalf("bad: %#v", errs)
 	}
 
 	// Good
-	c = testSSHConfig()
-	c.SSHHostPortMin = 50
-	c.SSHHostPortMax = 500
-	errs = c.Prepare(testConfigTemplate(t))
+	c = testCommConfig()
+	c.HostPortMin = 50
+	c.HostPortMax = 500
+	errs = c.Prepare(interpolate.NewContext())
 	if len(errs) > 0 {
 		t.Fatalf("should not have error: %s", errs)
 	}
 }
 
-func TestSSHConfigPrepare_SSHPrivateKey(t *testing.T) {
-	var c *SSHConfig
+func TestCommConfigPrepare_SSHPrivateKey(t *testing.T) {
+	var c *CommConfig
 	var errs []error
 
-	c = testSSHConfig()
+	c = testCommConfig()
 	c.Comm.SSHPrivateKeyFile = ""
-	errs = c.Prepare(testConfigTemplate(t))
+	errs = c.Prepare(interpolate.NewContext())
 	if len(errs) > 0 {
 		t.Fatalf("should not have error: %#v", errs)
 	}
 
-	c = testSSHConfig()
+	c = testCommConfig()
 	c.Comm.SSHPrivateKeyFile = "/i/dont/exist"
-	errs = c.Prepare(testConfigTemplate(t))
+	errs = c.Prepare(interpolate.NewContext())
 	if len(errs) == 0 {
 		t.Fatal("should have error")
 	}
@@ -89,9 +93,9 @@ func TestSSHConfigPrepare_SSHPrivateKey(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	c = testSSHConfig()
+	c = testCommConfig()
 	c.Comm.SSHPrivateKeyFile = tf.Name()
-	errs = c.Prepare(testConfigTemplate(t))
+	errs = c.Prepare(interpolate.NewContext())
 	if len(errs) == 0 {
 		t.Fatal("should have error")
 	}
@@ -100,11 +104,46 @@ func TestSSHConfigPrepare_SSHPrivateKey(t *testing.T) {
 	tf.Seek(0, 0)
 	tf.Truncate(0)
 	tf.Write([]byte(testPem))
-	c = testSSHConfig()
+	c = testCommConfig()
 	c.Comm.SSHPrivateKeyFile = tf.Name()
-	errs = c.Prepare(testConfigTemplate(t))
+	errs = c.Prepare(interpolate.NewContext())
 	if len(errs) > 0 {
 		t.Fatalf("should not have error: %#v", errs)
+	}
+}
+
+func TestCommConfigPrepare_BackwardsCompatibility(t *testing.T) {
+	var c *CommConfig
+	hostPortMin := 1234
+	hostPortMax := 4321
+	skipNatMapping := true
+	sshTimeout := 2 * time.Minute
+
+	c = testCommConfig()
+	c.SSHHostPortMin = hostPortMin
+	c.SSHHostPortMax = hostPortMax
+	c.SSHSkipNatMapping = skipNatMapping
+	c.SSHWaitTimeout = sshTimeout
+
+	err := c.Prepare(interpolate.NewContext())
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	if c.HostPortMin != hostPortMin {
+		t.Fatalf("HostPortMin should be %d for backwards compatibility, but it was %d", hostPortMin, c.HostPortMin)
+	}
+
+	if c.HostPortMax != hostPortMax {
+		t.Fatalf("HostPortMax should be %d for backwards compatibility, but it was %d", hostPortMax, c.HostPortMax)
+	}
+
+	if c.SkipNatMapping != skipNatMapping {
+		t.Fatalf("SkipNatMapping should be %t for backwards compatibility, but it was %t", skipNatMapping, c.SkipNatMapping)
+	}
+
+	if c.Comm.SSHTimeout != sshTimeout {
+		t.Fatalf("SSHTimeout should be %s for backwards compatibility, but it was %s", sshTimeout.String(), c.Comm.SSHTimeout.String())
 	}
 }
 
