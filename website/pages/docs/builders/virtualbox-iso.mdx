@@ -2,11 +2,11 @@
 modeline: |
   vim: set ft=pandoc:
 description: |
-    The VirtualBox Packer builder is able to create VirtualBox virtual machines
-    and export them in the OVF format, starting from an ISO image.
+  The VirtualBox Packer builder is able to create VirtualBox virtual machines
+  and export them in the OVF format, starting from an ISO image.
 layout: docs
-page_title: 'VirtualBox ISO - Builders'
-sidebar_current: 'docs-builders-virtualbox-iso'
+page_title: VirtualBox ISO - Builders
+sidebar_current: docs-builders-virtualbox-iso
 ---
 
 # VirtualBox Builder (from an ISO)
@@ -60,95 +60,95 @@ references for [ISO](#iso-configuration),
 configuration references, which are
 necessary for this build to succeed and can be found further down the page.
 
-
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/iso/Config-not-required" %>
-<%= partial "partials/builder/virtualbox/common/VBoxVersionConfig-not-required" %>
-<%= partial "partials/builder/virtualbox/common/VBoxBundleConfig-not-required" %>
-<%= partial "partials/builder/virtualbox/common/GuestAdditionsConfig-not-required" %>
+@include 'partials/builder/virtualbox/iso/Config-not-required.mdx'
+@include 'partials/builder/virtualbox/common/VBoxVersionConfig-not-required.mdx'
+@include 'partials/builder/virtualbox/common/VBoxBundleConfig-not-required.mdx'
+@include 'partials/builder/virtualbox/common/GuestAdditionsConfig-not-required.mdx'
 
 ### ISO Configuration
 
-<%= partial "partials/common/ISOConfig" %>
+@include 'partials/common/ISOConfig.mdx'
 
 #### Required:
 
-<%= partial "partials/common/ISOConfig-required" %>
+@include 'partials/common/ISOConfig-required.mdx'
 
 #### Optional:
 
-<%= partial "partials/common/ISOConfig-not-required" %>
+@include 'partials/common/ISOConfig-not-required.mdx'
 
 ### Http directory configuration
 
-<%= partial "partials/common/HTTPConfig" %>
+@include 'partials/common/HTTPConfig.mdx'
+
 #### Optional:
 
-<%= partial "partials/common/HTTPConfig-not-required" %>
+@include 'partials/common/HTTPConfig-not-required.mdx'
 
 ### Floppy configuration
 
-<%= partial "partials/common/FloppyConfig" %>
+@include 'partials/common/FloppyConfig.mdx'
 
 #### Optional:
 
-<%= partial "partials/common/FloppyConfig-not-required" %>
+@include 'partials/common/FloppyConfig-not-required.mdx'
 
 ### Export configuration
 
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/common/ExportConfig-not-required" %>
+@include 'partials/builder/virtualbox/common/ExportConfig-not-required.mdx'
 
 ### Output configuration
 
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/common/OutputConfig-not-required" %>
+@include 'partials/builder/virtualbox/common/OutputConfig-not-required.mdx'
 
 ### Run configuration
 
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/common/RunConfig-not-required" %>
+@include 'partials/builder/virtualbox/common/RunConfig-not-required.mdx'
 
 ### Shutdown configuration
 
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/common/ShutdownConfig-not-required" %>
+@include 'partials/builder/virtualbox/common/ShutdownConfig-not-required.mdx'
 
 ### Hardware configuration
 
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/common/HWConfig-not-required" %>
+@include 'partials/builder/virtualbox/common/HWConfig-not-required.mdx'
 
 ### VBox Manage configuration
 
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/common/VBoxManageConfig-not-required" %>
+@include 'partials/builder/virtualbox/common/VBoxManageConfig-not-required.mdx'
 
 ### Communicator configuration
 
 #### Optional common fields:
 
-<%= partial "partials/helper/communicator/Config-not-required" %>
-<%= partial "partials/builder/virtualbox/common/CommConfig-not-required" %>
+@include 'partials/helper/communicator/Config-not-required.mdx'
+@include 'partials/builder/virtualbox/common/CommConfig-not-required.mdx'
 
 #### Optional SSH fields:
 
-<%= partial "partials/helper/communicator/SSH-not-required" %>
+@include 'partials/helper/communicator/SSH-not-required.mdx'
 
 #### Optional WinRM fields:
 
-<%= partial "partials/helper/communicator/WinRM-not-required" %>
+@include 'partials/helper/communicator/WinRM-not-required.mdx'
 
 ### Boot Configuration
 
-<%= partial "partials/common/bootcommand/BootConfig" %>
+@include 'partials/common/bootcommand/BootConfig.mdx'
 
 The boot command is sent to the VM through the `VBoxManage` utility in as few
 invocations as possible. We send each character in groups of 25, with a default
@@ -170,16 +170,16 @@ contention. If you notice missing keys, you can tune this delay by specifying
 
 #### Optional:
 
-<%= partial "partials/common/bootcommand/BootConfig-not-required" %>
+@include 'partials/common/bootcommand/BootConfig-not-required.mdx'
 
-<%= partial "partials/builders/boot-command" %>
+@include 'partials/builders/boot-command.mdx'
 
-<%= partial "partials/builders/virtualbox-ssh-key-pair" %>
+@include 'partials/builders/virtualbox-ssh-key-pair.mdx'
 
 Example boot command. This is actually a working boot command used to start an
 Ubuntu 12.04 installer:
 
-``` text
+```text
 [
   "<esc><esc><enter><wait>",
   "/install/vmlinuz noapic ",
@@ -229,9 +229,7 @@ section. An example is shown below that sets the VRAM within the virtual machine
 
 ```json
 {
-  "vboxmanage": [
-    ["modifyvm", "{{.Name}}", "--vram", "64"]
-  ]
+  "vboxmanage": [["modifyvm", "{{.Name}}", "--vram", "64"]]
 }
 ```
 
