@@ -2,39 +2,48 @@
 modeline: |
   vim: set ft=pandoc:
 description: |
-    The VirtualBox Packer builder is able to create VirtualBox virtual machines
-    and export them in the OVF format, starting from an ISO image.
+  This VirtualBox Packer builder is able to create VirtualBox virtual machines
+  and export them in the OVF format, starting from an existing OVF/OVA (exported
+  virtual machine image).
 layout: docs
-page_title: 'VirtualBox ISO - Builders'
-sidebar_current: 'docs-builders-virtualbox-iso'
+page_title: VirtualBox OVF/OVA - Builders
+sidebar_title: OVF
 ---
 
-# VirtualBox Builder (from an ISO)
+# VirtualBox Builder (from an OVF/OVA)
 
-Type: `virtualbox-iso`
+Type: `virtualbox-ovf`
 
-The VirtualBox Packer builder is able to create
+This VirtualBox Packer builder is able to create
 [VirtualBox](https://www.virtualbox.org/) virtual machines and export them in
-the OVF format, starting from an ISO image.
+the OVF format, starting from an existing OVF/OVA (exported virtual machine
+image).
 
-The builder builds a virtual machine by creating a new virtual machine from
-scratch, booting it, installing an OS, provisioning software within the OS, then
-shutting it down. The result of the VirtualBox builder is a directory containing
-all the files necessary to run the virtual machine portably.
+When exporting from VirtualBox make sure to choose OVF Version 2, since Version
+1 is not compatible and will generate errors like this:
+
+```shell
+==> virtualbox-ovf: Progress state: VBOX_E_FILE_ERROR
+==> virtualbox-ovf: VBoxManage: error: Appliance read failed
+==> virtualbox-ovf: VBoxManage: error: Error reading "source.ova": element "Section" has no "type" attribute, line 21
+==> virtualbox-ovf: VBoxManage: error: Details: code VBOX_E_FILE_ERROR (0x80bb0004), component Appliance, interface IAppliance
+==> virtualbox-ovf: VBoxManage: error: Context: "int handleImportAppliance(HandlerArg*)" at line 304 of file VBoxManageAppliance.cpp
+```
+
+The builder builds a virtual machine by importing an existing OVF or OVA file.
+It then boots this image, runs provisioners on this new VM, and exports that VM
+to create the image. The imported machine is deleted prior to finishing the
+build.
 
 ## Basic Example
 
-Here is a basic example. This example is not functional. It will start the OS
-installer but then fail because we don't provide the preseed file for Ubuntu to
-self-install. Still, the example serves to show the basic configuration:
+Here is a basic example. This example is functional if you have an OVF matching
+the settings here.
 
 ```json
 {
-  "type": "virtualbox-iso",
-  "guest_os_type": "Ubuntu_64",
-  "iso_url": "http://releases.ubuntu.com/12.04/ubuntu-12.04.5-server-amd64.iso",
-  "iso_checksum": "769474248a3897f4865817446f9a4a53",
-  "iso_checksum_type": "md5",
+  "type": "virtualbox-ovf",
+  "source_path": "source.ovf",
   "ssh_username": "packer",
   "ssh_password": "packer",
   "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
@@ -45,7 +54,7 @@ It is important to add a `shutdown_command`. By default Packer halts the virtual
 machine and the file system may not be sync'd. Thus, changes made in a
 provisioner might not be saved.
 
-## VirtualBox-ISO Builder Configuration Reference
+## Configuration Reference
 
 There are many configuration options available for the builder. In addition to
 the items listed here, you will want to look at the general configuration
@@ -60,95 +69,81 @@ references for [ISO](#iso-configuration),
 configuration references, which are
 necessary for this build to succeed and can be found further down the page.
 
+### Required:
+
+@include 'builder/virtualbox/ovf/Config-required.mdx'
 
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/iso/Config-not-required" %>
-<%= partial "partials/builder/virtualbox/common/VBoxVersionConfig-not-required" %>
-<%= partial "partials/builder/virtualbox/common/VBoxBundleConfig-not-required" %>
-<%= partial "partials/builder/virtualbox/common/GuestAdditionsConfig-not-required" %>
+@include 'builder/virtualbox/ovf/Config-not-required.mdx'
 
-### ISO Configuration
+@include 'builder/virtualbox/common/VBoxVersionConfig-not-required.mdx'
 
-<%= partial "partials/common/ISOConfig" %>
+@include 'builder/virtualbox/common/GuestAdditionsConfig-not-required.mdx'
 
-#### Required:
+### VBoxManage configuration
 
-<%= partial "partials/common/ISOConfig-required" %>
-
-#### Optional:
-
-<%= partial "partials/common/ISOConfig-not-required" %>
+@include 'builder/virtualbox/common/VBoxManageConfig-not-required.mdx'
 
 ### Http directory configuration
 
-<%= partial "partials/common/HTTPConfig" %>
+@include 'common/HTTPConfig.mdx'
+
 #### Optional:
 
-<%= partial "partials/common/HTTPConfig-not-required" %>
+@include 'common/HTTPConfig-not-required.mdx'
 
 ### Floppy configuration
 
-<%= partial "partials/common/FloppyConfig" %>
+@include 'common/FloppyConfig.mdx'
 
 #### Optional:
 
-<%= partial "partials/common/FloppyConfig-not-required" %>
+@include 'common/FloppyConfig-not-required.mdx'
 
 ### Export configuration
 
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/common/ExportConfig-not-required" %>
+@include 'builder/virtualbox/common/ExportConfig-not-required.mdx'
 
 ### Output configuration
 
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/common/OutputConfig-not-required" %>
+@include 'builder/virtualbox/common/OutputConfig-not-required.mdx'
 
 ### Run configuration
 
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/common/RunConfig-not-required" %>
+@include 'builder/virtualbox/common/RunConfig-not-required.mdx'
 
 ### Shutdown configuration
 
 #### Optional:
 
-<%= partial "partials/builder/virtualbox/common/ShutdownConfig-not-required" %>
-
-### Hardware configuration
-
-#### Optional:
-
-<%= partial "partials/builder/virtualbox/common/HWConfig-not-required" %>
-
-### VBox Manage configuration
-
-#### Optional:
-
-<%= partial "partials/builder/virtualbox/common/VBoxManageConfig-not-required" %>
+@include 'builder/virtualbox/common/ShutdownConfig-not-required.mdx'
 
 ### Communicator configuration
 
 #### Optional common fields:
 
-<%= partial "partials/helper/communicator/Config-not-required" %>
-<%= partial "partials/builder/virtualbox/common/CommConfig-not-required" %>
+@include 'helper/communicator/Config-not-required.mdx'
+
+@include 'builder/virtualbox/common/CommConfig-not-required.mdx'
 
 #### Optional SSH fields:
 
-<%= partial "partials/helper/communicator/SSH-not-required" %>
+@include 'helper/communicator/SSH-not-required.mdx'
 
 #### Optional WinRM fields:
 
-<%= partial "partials/helper/communicator/WinRM-not-required" %>
+@include 'helper/communicator/WinRM-not-required.mdx'
 
 ### Boot Configuration
 
-<%= partial "partials/common/bootcommand/BootConfig" %>
+@include 'common/bootcommand/BootConfig.mdx'
 
 The boot command is sent to the VM through the `VBoxManage` utility in as few
 invocations as possible. We send each character in groups of 25, with a default
@@ -170,16 +165,16 @@ contention. If you notice missing keys, you can tune this delay by specifying
 
 #### Optional:
 
-<%= partial "partials/common/bootcommand/BootConfig-not-required" %>
+@include 'common/bootcommand/BootConfig-not-required.mdx'
 
-<%= partial "partials/builders/boot-command" %>
+@include 'builders/boot-command.mdx'
 
-<%= partial "partials/builders/virtualbox-ssh-key-pair" %>
+@include 'builders/virtualbox-ssh-key-pair.mdx'
 
 Example boot command. This is actually a working boot command used to start an
 Ubuntu 12.04 installer:
 
-``` text
+```text
 [
   "<esc><esc><enter><wait>",
   "/install/vmlinuz noapic ",
@@ -193,13 +188,8 @@ Ubuntu 12.04 installer:
 ]
 ```
 
-Please note that for the Virtuabox builder, the IP address of the HTTP server
-Packer launches for you to access files like the preseed file in the example
-above (`{{ .HTTPIP }}`) is hardcoded to 10.0.2.2. If you change the network
-of your VM you must guarantee that you can still access this HTTP server.
-
 For more examples of various boot commands, see the sample projects from our
-[community templates page](/community-tools.html#templates).
+[community templates page](/community-tools#templates).
 
 ## Guest Additions
 
@@ -225,12 +215,14 @@ interface to VirtualBox where you can completely control VirtualBox. It can be
 used to do things such as set RAM, CPUs, etc.
 
 Extra VBoxManage commands are defined in the template in the `vboxmanage`
-section. An example is shown below that sets the VRAM within the virtual machine:
+section. An example is shown below that sets the memory and number of CPUs
+within the virtual machine:
 
 ```json
 {
   "vboxmanage": [
-    ["modifyvm", "{{.Name}}", "--vram", "64"]
+    ["modifyvm", "{{.Name}}", "--memory", "1024"],
+    ["modifyvm", "{{.Name}}", "--cpus", "2"]
   ]
 }
 ```
@@ -241,18 +233,6 @@ followed by the CPUs.
 
 Each command itself is an array of strings, where each string is an argument to
 `VBoxManage`. Each argument is treated as a [configuration
-template](/docs/templates/engine.html). The only available
+template](/docs/templates/engine). The only available
 variable is `Name` which is replaced with the unique name of the VM, which is
 required for many VBoxManage calls.
-
-## Creating an EFI enabled VM
-
-If you want to create an EFI enabled VM, make sure you set the `iso_interface`
-to "sata". Otherwise your attached drive will not be bootable. Example:
-
-```json
-      "iso_interface": "sata",
-      "vboxmanage": [
-        [ "modifyvm", "{{.Name}}", "--firmware", "EFI" ]
-      ]
-```
