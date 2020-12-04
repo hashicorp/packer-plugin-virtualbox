@@ -2,51 +2,41 @@
 modeline: |
   vim: set ft=pandoc:
 description: |
-  This VirtualBox Packer builder is able to create VirtualBox virtual machines
-  and export them in the OVF format, starting from an existing OVF/OVA (exported
-  virtual machine image).
+  The VirtualBox Packer builder is able to create VirtualBox virtual machines
+  and export them in the OVF format, starting from an ISO image.
 layout: docs
-page_title: VirtualBox OVF/OVA - Builders
-sidebar_title: OVF
+page_title: VirtualBox ISO - Builders
+sidebar_title: ISO
 ---
 
-# VirtualBox Builder (from an OVF/OVA)
+# VirtualBox Builder (from an ISO)
 
-Type: `virtualbox-ovf`
+Type: `virtualbox-iso`
 
-This VirtualBox Packer builder is able to create
+The VirtualBox Packer builder is able to create
 [VirtualBox](https://www.virtualbox.org/) virtual machines and export them in
-the OVF format, starting from an existing OVF/OVA (exported virtual machine
-image).
+the OVF format, starting from an ISO image.
 
-When exporting from VirtualBox make sure to choose OVF Version 2, since Version
-1 is not compatible and will generate errors like this:
-
-```shell-session
-==> virtualbox-ovf: Progress state: VBOX_E_FILE_ERROR
-==> virtualbox-ovf: VBoxManage: error: Appliance read failed
-==> virtualbox-ovf: VBoxManage: error: Error reading "source.ova": element "Section" has no "type" attribute, line 21
-==> virtualbox-ovf: VBoxManage: error: Details: code VBOX_E_FILE_ERROR (0x80bb0004), component Appliance, interface IAppliance
-==> virtualbox-ovf: VBoxManage: error: Context: "int handleImportAppliance(HandlerArg*)" at line 304 of file VBoxManageAppliance.cpp
-```
-
-The builder builds a virtual machine by importing an existing OVF or OVA file.
-It then boots this image, runs provisioners on this new VM, and exports that VM
-to create the image. The imported machine is deleted prior to finishing the
-build.
+The builder builds a virtual machine by creating a new virtual machine from
+scratch, booting it, installing an OS, provisioning software within the OS, then
+shutting it down. The result of the VirtualBox builder is a directory containing
+all the files necessary to run the virtual machine portably.
 
 ## Basic Example
 
-Here is a basic example. This example is functional if you have an OVF matching
-the settings here.
+Here is a basic example. This example is not functional. It will start the OS
+installer but then fail because we don't provide the preseed file for Ubuntu to
+self-install. Still, the example serves to show the basic configuration:
 
 <Tabs>
 <Tab heading="JSON">
 
 ```json
 {
-  "type": "virtualbox-ovf",
-  "source_path": "source.ovf",
+  "type": "virtualbox-iso",
+  "guest_os_type": "Ubuntu_64",
+  "iso_url": "http://releases.ubuntu.com/12.04/ubuntu-12.04.5-server-amd64.iso",
+  "iso_checksum": "md5:769474248a3897f4865817446f9a4a53",
   "ssh_username": "packer",
   "ssh_password": "packer",
   "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
@@ -57,15 +47,17 @@ the settings here.
 <Tab heading="HCL2">
 
 ```hcl
-source "virtualbox-ovf" "basic-example" {
-  source_path = "source.ovf"
+source "virtualbox-iso" "basic-example" {
+  guest_os_type = "Ubuntu_64"
+  iso_url = "http://releases.ubuntu.com/12.04/ubuntu-12.04.5-server-amd64.iso"
+  iso_checksum = "md5:769474248a3897f4865817446f9a4a53"
   ssh_username = "packer"
   ssh_password = "packer"
   shutdown_command = "echo 'packer' | sudo -S shutdown -P now"
 }
 
 build {
-  sources = ["sources.virtualbox-ovf.basic-example"]
+  sources = ["sources.virtualbox-iso.basic-example"]
 }
 ```
 
@@ -76,7 +68,7 @@ It is important to add a `shutdown_command`. By default Packer halts the virtual
 machine and the file system may not be sync'd. Thus, changes made in a
 provisioner might not be saved.
 
-## Configuration Reference
+## VirtualBox-ISO Builder Configuration Reference
 
 There are many configuration options available for the builder. In addition to
 the items listed here, you will want to look at the general configuration
@@ -91,21 +83,27 @@ references for [ISO](#iso-configuration),
 configuration references, which are
 necessary for this build to succeed and can be found further down the page.
 
-### Required:
-
-@include 'builder/virtualbox/ovf/Config-required.mdx'
-
 #### Optional:
 
-@include 'builder/virtualbox/ovf/Config-not-required.mdx'
+@include 'builder/virtualbox/iso/Config-not-required.mdx'
 
 @include 'builder/virtualbox/common/VBoxVersionConfig-not-required.mdx'
 
+@include 'builder/virtualbox/common/VBoxBundleConfig-not-required.mdx'
+
 @include 'builder/virtualbox/common/GuestAdditionsConfig-not-required.mdx'
 
-### VBoxManage configuration
+### ISO Configuration
 
-@include 'builder/virtualbox/common/VBoxManageConfig-not-required.mdx'
+@include 'packer-plugin-sdk/multistep/commonsteps/ISOConfig.mdx'
+
+#### Required:
+
+@include 'packer-plugin-sdk/multistep/commonsteps/ISOConfig-required.mdx'
+
+#### Optional:
+
+@include 'packer-plugin-sdk/multistep/commonsteps/ISOConfig-not-required.mdx'
 
 ### Http directory configuration
 
@@ -155,6 +153,20 @@ necessary for this build to succeed and can be found further down the page.
 
 @include 'builder/virtualbox/common/ShutdownConfig-not-required.mdx'
 
+### Hardware configuration
+
+#### Optional:
+
+@include 'builder/virtualbox/common/HWConfig-not-required.mdx'
+
+### VBox Manage configuration
+
+@include 'builder/virtualbox/common/VBoxManageConfig.mdx'
+
+#### Optional:
+
+@include 'builder/virtualbox/common/VBoxManageConfig-not-required.mdx'
+
 ### Communicator configuration
 
 #### Optional common fields:
@@ -166,10 +178,6 @@ necessary for this build to succeed and can be found further down the page.
 #### Optional SSH fields:
 
 @include 'packer-plugin-sdk/communicator/SSH-not-required.mdx'
-
-@include 'packer-plugin-sdk/communicator/SSHTemporaryKeyPair-not-required.mdx'
-
-@include 'packer-plugin-sdk/communicator/SSH-Key-Pair-Name-not-required.mdx'
 
 @include 'packer-plugin-sdk/communicator/SSH-Private-Key-File-not-required.mdx'
 
@@ -201,7 +209,7 @@ contention. If you notice missing keys, you can tune this delay by specifying
 {
   "builders": [
     {
-      "type": "virtualbox-ovf",
+      "type": "virtualbox-iso",
       "boot_keygroup_interval": "500ms"
       ...
     }
@@ -213,7 +221,7 @@ contention. If you notice missing keys, you can tune this delay by specifying
 <Tab heading="HCL2">
 
 ```hcl
-source "virtualbox-ovf" "basic-example" {
+source "virtualbox-iso" "basic-example" {
   boot_keygroup_interval = "500ms"
   # ...
 }
@@ -243,9 +251,30 @@ uploaded is controllable by `guest_additions_path`, and defaults to
 "VBoxGuestAdditions.iso". Without an absolute path, it is uploaded to the home
 directory of the SSH user.
 
-## VBoxManage Commands
+## Creating an EFI enabled VM
 
-@include 'builder/virtualbox/common/VBoxManageConfig.mdx'
+If you want to create an EFI enabled VM, make sure you set the `iso_interface`
+to "sata". Otherwise your attached drive will not be bootable. Example:
 
-@include 'builder/virtualbox/common/VBoxManageConfig-not-required.mdx'
+<Tabs>
+<Tab heading="JSON">
 
+```json
+"iso_interface": "sata",
+"vboxmanage": [
+  [ "modifyvm", "{{.Name}}", "--firmware", "EFI" ]
+]
+```
+
+</Tab>
+<Tab heading="HCL2">
+
+```hcl
+iso_interface = "sata"
+vboxmanage = [
+  [ "modifyvm", "{{.Name}}", "--firmware", "EFI" ]
+]
+```
+
+</Tab>
+</Tabs>
