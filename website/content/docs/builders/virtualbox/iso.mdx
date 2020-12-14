@@ -4,7 +4,6 @@ modeline: |
 description: |
   The VirtualBox Packer builder is able to create VirtualBox virtual machines
   and export them in the OVF format, starting from an ISO image.
-layout: docs
 page_title: VirtualBox ISO - Builders
 sidebar_title: ISO
 ---
@@ -201,7 +200,6 @@ invocations as possible. We send each character in groups of 25, with a default
 delay of 100ms between groups. The delay alleviates issues with latency and CPU
 contention. If you notice missing keys, you can tune this delay by specifying
 "boot_keygroup_interval" in your Packer template, for example:
-
 
 <Tabs>
 <Tab heading="JSON">
