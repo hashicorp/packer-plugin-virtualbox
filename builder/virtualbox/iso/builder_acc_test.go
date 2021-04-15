@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/packer-plugin-sdk/acctest"
+	"github.com/hashicorp/packer-plugin-sdk/acctest/testutils"
 )
 
 func TestAccBuilder_basic(t *testing.T) {
@@ -21,7 +22,7 @@ func TestAccBuilder_basic(t *testing.T) {
 		Name:     "virtualbox-iso_basic_test",
 		Template: string(bytes),
 		Teardown: func() error {
-			// todo
+			testutils.CleanupFiles("output-virtualbox-iso")
 			return nil
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
