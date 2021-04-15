@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
-	vboxcommon "github.com/hashicorp/packer/builder/virtualbox/common"
+	vboxcommon "github.com/hashicorp/packer-plugin-virtualbox/builder/virtualbox/common"
 
 	"path/filepath"
 	"strconv"

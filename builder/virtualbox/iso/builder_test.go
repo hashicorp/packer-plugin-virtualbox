@@ -7,7 +7,7 @@ import (
 
 	packercommon "github.com/hashicorp/packer-plugin-sdk/common"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/hashicorp/packer/builder/virtualbox/common"
+	"github.com/hashicorp/packer-plugin-virtualbox/builder/virtualbox/common"
 )
 
 func testConfig() map[string]interface{} {

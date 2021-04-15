@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/multistep/commonsteps"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
-	vboxcommon "github.com/hashicorp/packer/builder/virtualbox/common"
+	vboxcommon "github.com/hashicorp/packer-plugin-virtualbox/builder/virtualbox/common"
 )
 
 // Builder implements packersdk.Builder and builds the actual VirtualBox

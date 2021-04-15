@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hashicorp/packer/builder/virtualbox/iso"
+	"github.com/hashicorp/packer-plugin-virtualbox/builder/virtualbox/iso"
 
 	"github.com/hashicorp/packer-plugin-sdk/acctest/testutils"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"

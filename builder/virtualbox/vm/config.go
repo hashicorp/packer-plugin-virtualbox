@@ -1,5 +1,5 @@
-//go:generate struct-markdown
-//go:generate mapstructure-to-hcl2 -type Config
+//go:generate packer-sdc struct-markdown
+//go:generate packer-sdc mapstructure-to-hcl2 -type Config
 
 package vm
 
@@ -14,7 +14,7 @@ import (
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
-	vboxcommon "github.com/hashicorp/packer/builder/virtualbox/common"
+	vboxcommon "github.com/hashicorp/packer-plugin-virtualbox/builder/virtualbox/common"
 )
 
 // Config is the configuration structure for the builder.
