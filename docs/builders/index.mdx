@@ -1,10 +1,9 @@
 ---
 description: >
   The VirtualBox Packer builder is able to create VirtualBox virtual machines
-  and
-
-  export them in the OVA or OVF format.
+  and export them in the OVA or OVF format.
 page_title: VirtualBox - Builders
+sidebar_title: Overview
 ---
 
 # VirtualBox Builder
@@ -35,3 +34,20 @@ supports the following VirtualBox builders:
   addition the builder is able to export that machine to create an image. The
   builder is able to attach to a defined snapshot as a starting point, which
   could be defined statically or dynamically via a variable.
+
+
+## How to use this plugin
+
+From Packer v1.7.0, copy and paste this code into your Packer configuration to install this plugin.
+Then, run [`packer init`](/docs/commands/init).
+
+```hcl
+packer {
+  required_plugins {
+    virtualbox = {
+      version = ">= 0.0.1"
+      source = "github.com/hashicorp/virtualbox"
+    }
+  }
+}
+```
