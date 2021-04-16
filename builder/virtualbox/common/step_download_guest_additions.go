@@ -175,7 +175,7 @@ func (s *StepDownloadGuestAdditions) downloadAdditionsSHA256(ctx context.Context
 	// is quite small so that is okay. In the future, we probably want to
 	// use bufio and iterate line by line.
 	var contents bytes.Buffer
-	io.Copy(&contents, checksumsF)
+	_, _ = io.Copy(&contents, checksumsF)
 
 	checksum := ""
 	for _, line := range strings.Split(contents.String(), "\n") {
