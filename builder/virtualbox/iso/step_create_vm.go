@@ -65,8 +65,11 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 	} else {
 		commands = append(commands, []string{"modifyvm", name, "--rtcuseutc", "off"})
 	}
-	if config.NestedVirt == true {
+
+	if config.NestedVirt.True() {
 		commands = append(commands, []string{"modifyvm", name, "--nested-hw-virt", "on"})
+	} else if config.NestedVirt.False() {
+		commands = append(commands, []string{"modifyvm", name, "--nested-hw-virt", "off"})
 	}
 
 	if config.GfxAccelerate3D {

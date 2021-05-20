@@ -56,7 +56,7 @@ type Config struct {
 	// Nested virtualization: false or true.
 	// When set to true, nested virtualisation (VT-x/AMD-V) is enabled.
 	// When set to false, nested virtualisation is disabled. This is the default.
-	NestedVirt bool `mapstructure:"nested_virt" required:"false"`
+	NestedVirt config.Trilean `mapstructure:"nested_virt" required:"false"`
 	// RTC time base: UTC or local.
 	// When set to true, the RTC is set as UTC time.
 	// When set to false, the RTC is set as local time. This is the default.
