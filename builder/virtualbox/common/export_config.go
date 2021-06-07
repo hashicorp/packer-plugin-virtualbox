@@ -38,8 +38,8 @@ type ExportConfig struct {
 	//		export_opts = [
 	//	          "--manifest",
 	//	          "--vsys", "0",
-	//	          "--description", "{{user `vm_description`}}",
-	//	          "--version", "{{user `vm_version`}}"
+	//	          "--description", "${var.vm_description}",
+	//	          "--version", "${var.vm_version}"
 	//	   	]
 	//		format = "ova"
 	//  }
