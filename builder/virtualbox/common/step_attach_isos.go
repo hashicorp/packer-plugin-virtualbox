@@ -81,11 +81,11 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 			device = 1
 			if s.ISOInterface == "sata" {
 				controllerName = "SATA Controller"
-				port = 15
+				port = 13
 				device = 0
 			} else if s.ISOInterface == "virtio" {
 				controllerName = "VirtIO Controller"
-				port = 15
+				port = 13
 				device = 0
 			}
 			ui.Message("Mounting boot ISO...")
@@ -109,11 +109,11 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 			device = 1
 			if s.ISOInterface == "sata" {
 				controllerName = "SATA Controller"
-				port = 13
+				port = 15
 				device = 0
 			} else if s.ISOInterface == "virtio" {
 				controllerName = "VirtIO Controller"
-				port = 13
+				port = 15
 				device = 0
 			}
 			ui.Message("Mounting cd_files ISO...")
