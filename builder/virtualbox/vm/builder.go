@@ -55,8 +55,9 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			Directories: b.config.FloppyConfig.FloppyDirectories,
 		},
 		&commonsteps.StepCreateCD{
-			Files: b.config.CDConfig.CDFiles,
-			Label: b.config.CDConfig.CDLabel,
+			Files:   b.config.CDConfig.CDFiles,
+			Content: b.config.CDConfig.CDContent,
+			Label:   b.config.CDConfig.CDLabel,
 		},
 		&StepSetSnapshot{
 			Name:           b.config.VMName,
