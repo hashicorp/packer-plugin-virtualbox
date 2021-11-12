@@ -26,6 +26,7 @@ type FlatConfig struct {
 	HTTPInterface             *string           `mapstructure:"http_interface" undocumented:"true" cty:"http_interface" hcl:"http_interface"`
 	FloppyFiles               []string          `mapstructure:"floppy_files" cty:"floppy_files" hcl:"floppy_files"`
 	FloppyDirectories         []string          `mapstructure:"floppy_dirs" cty:"floppy_dirs" hcl:"floppy_dirs"`
+	FloppyContent             map[string]string `mapstructure:"floppy_content" cty:"floppy_content" hcl:"floppy_content"`
 	FloppyLabel               *string           `mapstructure:"floppy_label" cty:"floppy_label" hcl:"floppy_label"`
 	CDFiles                   []string          `mapstructure:"cd_files" cty:"cd_files" hcl:"cd_files"`
 	CDContent                 map[string]string `mapstructure:"cd_content" cty:"cd_content" hcl:"cd_content"`
@@ -145,6 +146,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"http_interface":               &hcldec.AttrSpec{Name: "http_interface", Type: cty.String, Required: false},
 		"floppy_files":                 &hcldec.AttrSpec{Name: "floppy_files", Type: cty.List(cty.String), Required: false},
 		"floppy_dirs":                  &hcldec.AttrSpec{Name: "floppy_dirs", Type: cty.List(cty.String), Required: false},
+		"floppy_content":               &hcldec.AttrSpec{Name: "floppy_content", Type: cty.Map(cty.String), Required: false},
 		"floppy_label":                 &hcldec.AttrSpec{Name: "floppy_label", Type: cty.String, Required: false},
 		"cd_files":                     &hcldec.AttrSpec{Name: "cd_files", Type: cty.List(cty.String), Required: false},
 		"cd_content":                   &hcldec.AttrSpec{Name: "cd_content", Type: cty.Map(cty.String), Required: false},
