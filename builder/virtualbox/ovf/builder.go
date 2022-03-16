@@ -110,8 +110,9 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			SkipNatMapping: b.config.SkipNatMapping,
 		},
 		&vboxcommon.StepVBoxManage{
-			Commands: b.config.VBoxManage,
-			Ctx:      b.config.ctx,
+			Commands:  b.config.VBoxManage,
+			Ctx:       b.config.ctx,
+			OutputDir: b.config.OutputDir,
 		},
 		&vboxcommon.StepRun{
 			Headless: b.config.Headless,
