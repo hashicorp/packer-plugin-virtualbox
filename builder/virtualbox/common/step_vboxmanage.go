@@ -17,6 +17,9 @@ type commandTemplate struct {
 	// HTTPPort is the HTTP server port.
 	HTTPPort int
 
+	// Output Directory
+	OutputDir string
+
 	Name string
 }
 
@@ -30,8 +33,9 @@ type commandTemplate struct {
 //
 // Produces:
 type StepVBoxManage struct {
-	Commands [][]string
-	Ctx      interpolate.Context
+	Commands  [][]string
+	Ctx       interpolate.Context
+	OutputDir string
 }
 
 func (s *StepVBoxManage) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
@@ -47,9 +51,10 @@ func (s *StepVBoxManage) Run(ctx context.Context, state multistep.StateBag) mult
 	httpPort := state.Get("http_port").(int)
 
 	s.Ctx.Data = &commandTemplate{
-		Name:     vmName,
-		HTTPIP:   hostIP,
-		HTTPPort: httpPort,
+		Name:      vmName,
+		HTTPIP:    hostIP,
+		HTTPPort:  httpPort,
+		OutputDir: s.OutputDir,
 	}
 
 	for _, originalCommand := range s.Commands {
