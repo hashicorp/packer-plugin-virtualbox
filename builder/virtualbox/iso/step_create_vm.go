@@ -36,6 +36,9 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 		"--boot1", "disk", "--boot2", "dvd", "--boot3", "none", "--boot4", "none",
 	})
 	commands = append(commands, []string{"modifyvm", name, "--cpus", strconv.Itoa(config.HWConfig.CpuCount)})
+	if config.HWConfig.CpuCount > 1 {
+		commands = append(commands, []string{"modifyvm", name, "--ioapic", "on"})
+	}
 	commands = append(commands, []string{"modifyvm", name, "--memory", strconv.Itoa(config.HWConfig.MemorySize)})
 	commands = append(commands, []string{"modifyvm", name, "--usb", map[bool]string{true: "on", false: "off"}[config.HWConfig.USB]})
 
