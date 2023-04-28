@@ -58,8 +58,8 @@ type Config struct {
 	// When set to false, nested virtualisation is disabled. This is the default.
 	NestedVirt config.Trilean `mapstructure:"nested_virt" required:"false"`
 	// RTC time base: UTC or local.
-	// When set to true, the RTC is set as UTC time.
-	// When set to false, the RTC is set as local time. This is the default.
+	// When set to "UTC", the RTC is set as UTC time.
+	// When set to "local", the RTC is set as local time. This is the default.
 	RTCTimeBase string `mapstructure:"rtc_time_base" required:"false"`
 	// The size, in megabytes, of the hard disk to create for the VM. By
 	// default, this is 40000 (about 40 GB).
