@@ -28,8 +28,7 @@ Here is a basic example. This example is not functional. It will start the OS
 installer but then fail because we don't provide the preseed file for Ubuntu to
 self-install. Still, the example serves to show the basic configuration:
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 {
@@ -43,8 +42,7 @@ self-install. Still, the example serves to show the basic configuration:
 }
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 source "virtualbox-iso" "basic-example" {
@@ -61,8 +59,6 @@ build {
 }
 ```
 
-</Tab>
-</Tabs>
 
 It is important to add a `shutdown_command`. By default Packer halts the virtual
 machine and the file system may not be sync'd. Thus, changes made in a
@@ -83,7 +79,7 @@ references for [ISO](#iso-configuration),
 configuration references, which are
 necessary for this build to succeed and can be found further down the page.
 
-#### Optional:
+### Optional:
 
 @include 'builder/virtualbox/iso/Config-not-required.mdx'
 
@@ -202,8 +198,7 @@ delay of 100ms between groups. The delay alleviates issues with latency and CPU
 contention. If you notice missing keys, you can tune this delay by specifying
 "boot_keygroup_interval" in your Packer template, for example:
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 {
@@ -217,8 +212,7 @@ contention. If you notice missing keys, you can tune this delay by specifying
 }
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 source "virtualbox-iso" "basic-example" {
@@ -227,8 +221,6 @@ source "virtualbox-iso" "basic-example" {
 }
 ```
 
-</Tab>
-</Tabs>
 
 #### Optional:
 
@@ -325,8 +317,7 @@ directory of the SSH user.
 If you want to create an EFI enabled VM, make sure you set the `iso_interface`
 to "sata". Otherwise your attached drive will not be bootable. Example:
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 "iso_interface": "sata",
@@ -335,8 +326,7 @@ to "sata". Otherwise your attached drive will not be bootable. Example:
 ]
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 iso_interface = "sata"
@@ -345,5 +335,3 @@ vboxmanage = [
 ]
 ```
 
-</Tab>
-</Tabs>

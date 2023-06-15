@@ -29,8 +29,7 @@ from the applied provisioners.
 
 Here is a basic example. which serves to show the basic configuration:
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 {
@@ -52,8 +51,7 @@ Here is a basic example. which serves to show the basic configuration:
 }
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 source "virtualbox-vm" "basic-example" {
@@ -78,8 +76,6 @@ build {
 }
 ```
 
-</Tab>
-</Tabs>
 
 It is important to add a `shutdown_command`. By default Packer halts the virtual
 machine and the file system may not be sync'd. Thus, changes made in a
@@ -209,8 +205,7 @@ delay of 100ms between groups. The delay alleviates issues with latency and CPU
 contention. If you notice missing keys, you can tune this delay by specifying
 "boot_keygroup_interval" in your Packer template, for example:
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 {
@@ -224,8 +219,7 @@ contention. If you notice missing keys, you can tune this delay by specifying
 }
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 source "virtualbox-vm" "basic-example" {
@@ -234,8 +228,6 @@ source "virtualbox-vm" "basic-example" {
 }
 ```
 
-</Tab>
-</Tabs>
 
 #### Optional:
 
