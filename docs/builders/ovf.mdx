@@ -40,8 +40,7 @@ build.
 Here is a basic example. This example is functional if you have an OVF matching
 the settings here.
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 {
@@ -53,8 +52,7 @@ the settings here.
 }
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 source "virtualbox-ovf" "basic-example" {
@@ -69,8 +67,6 @@ build {
 }
 ```
 
-</Tab>
-</Tabs>
 
 It is important to add a `shutdown_command`. By default Packer halts the virtual
 machine and the file system may not be sync'd. Thus, changes made in a
@@ -194,8 +190,7 @@ delay of 100ms between groups. The delay alleviates issues with latency and CPU
 contention. If you notice missing keys, you can tune this delay by specifying
 "boot_keygroup_interval" in your Packer template, for example:
 
-<Tabs>
-<Tab heading="JSON">
+**JSON**
 
 ```json
 {
@@ -209,8 +204,7 @@ contention. If you notice missing keys, you can tune this delay by specifying
 }
 ```
 
-</Tab>
-<Tab heading="HCL2">
+**HCL2**
 
 ```hcl
 source "virtualbox-ovf" "basic-example" {
@@ -219,8 +213,6 @@ source "virtualbox-ovf" "basic-example" {
 }
 ```
 
-</Tab>
-</Tabs>
 
 #### Optional:
 
