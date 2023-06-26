@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package virtualbox_acc
 
 // This is the code necessary for running the provisioner acceptance tests.
