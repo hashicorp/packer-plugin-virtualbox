@@ -17,7 +17,8 @@ import (
 // This step creates the actual virtual machine.
 //
 // Produces:
-//   vmName string - The name of the VM
+//
+//	vmName string - The name of the VM
 type stepCreateVM struct {
 	vmName string
 }

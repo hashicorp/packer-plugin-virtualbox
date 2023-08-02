@@ -9,11 +9,11 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 )
 
-//In order to perform extra customization of the virtual machine, a template can
-//define extra calls to `VBoxManage` to perform.
-//[VBoxManage](https://www.virtualbox.org/manual/ch09.html) is the command-line
-//interface to VirtualBox where you can completely control VirtualBox. It can be
-//used to do things such as set RAM, CPUs, etc.
+// In order to perform extra customization of the virtual machine, a template can
+// define extra calls to `VBoxManage` to perform.
+// [VBoxManage](https://www.virtualbox.org/manual/ch09.html) is the command-line
+// interface to VirtualBox where you can completely control VirtualBox. It can be
+// used to do things such as set RAM, CPUs, etc.
 type VBoxManageConfig struct {
 	// Custom `VBoxManage` commands to execute in order to further customize
 	// the virtual machine being created. The example shown below sets the memory and number of CPUs

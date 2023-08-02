@@ -18,7 +18,8 @@ import (
 // Uses:
 //
 // Produces:
-//   exportPath string - The path to the resulting export.
+//
+//	exportPath string - The path to the resulting export.
 type StepExport struct {
 	Format         string
 	OutputDir      string
