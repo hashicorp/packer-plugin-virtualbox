@@ -32,7 +32,8 @@ type guestAdditionsUrlTemplate struct {
 // can be useful for various provisioning reasons.
 //
 // Produces:
-//   guest_additions_path string - Path to the guest additions.
+//
+//	guest_additions_path string - Path to the guest additions.
 type StepDownloadGuestAdditions struct {
 	GuestAdditionsMode   string
 	GuestAdditionsURL    string

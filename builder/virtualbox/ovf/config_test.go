@@ -115,6 +115,7 @@ func TestNewConfig_shutdown_timeout(t *testing.T) {
 }
 
 // TestChecksumFileNameMixedCaseBug reproduces Github issue #9049:
+//
 //	https://github.com/hashicorp/packer-plugin-virtualbox/issues/9049
 func TestChecksumFileNameMixedCaseBug(t *testing.T) {
 	tt := []struct {

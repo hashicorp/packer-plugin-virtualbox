@@ -18,7 +18,8 @@ import (
 const KeyLeftShift uint32 = 0xFFE1
 
 // TODO: Should this be made available for other builders?
-//  It is copy pasted in the VMWare builder as well.
+//
+//	It is copy pasted in the VMWare builder as well.
 type bootCommandTemplateData struct {
 	// HTTPIP is the HTTP server's IP address.
 	HTTPIP string

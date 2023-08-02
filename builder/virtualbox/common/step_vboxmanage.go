@@ -27,9 +27,10 @@ type commandTemplate struct {
 // template.
 //
 // Uses:
-//   driver Driver
-//   ui packersdk.Ui
-//   vmName string
+//
+//	driver Driver
+//	ui packersdk.Ui
+//	vmName string
 //
 // Produces:
 type StepVBoxManage struct {

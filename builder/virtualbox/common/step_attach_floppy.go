@@ -19,9 +19,10 @@ import (
 // This step attaches the ISO to the virtual machine.
 //
 // Uses:
-//   driver Driver
-//   ui packersdk.Ui
-//   vmName string
+//
+//	driver Driver
+//	ui packersdk.Ui
+//	vmName string
 //
 // Produces:
 type StepAttachFloppy struct {

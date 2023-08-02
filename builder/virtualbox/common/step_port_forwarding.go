@@ -19,9 +19,10 @@ import (
 // on the guest machine.
 //
 // Uses:
-//   driver Driver
-//   ui packersdk.Ui
-//   vmName string
+//
+//	driver Driver
+//	ui packersdk.Ui
+//	vmName string
 //
 // Produces:
 type StepPortForwarding struct {

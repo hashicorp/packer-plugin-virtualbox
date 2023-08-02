@@ -14,9 +14,10 @@ import (
 // This step starts the virtual machine.
 //
 // Uses:
-//   driver Driver
-//   ui packersdk.Ui
-//   vmName string
+//
+//	driver Driver
+//	ui packersdk.Ui
+//	vmName string
 //
 // Produces:
 type StepRun struct {

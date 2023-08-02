@@ -17,9 +17,10 @@ import (
 // on the guest machine.
 //
 // Uses:
-//   driver Driver
-//   ui packersdk.Ui
-//   vmName string
+//
+//	driver Driver
+//	ui packersdk.Ui
+//	vmName string
 //
 // Produces:
 // vrdp_port unit - The port that VRDP is configured to listen on.

@@ -18,9 +18,10 @@ import (
 // machine that we may have added.
 //
 // Uses:
-//   driver Driver
-//   ui packersdk.Ui
-//   vmName string
+//
+//	driver Driver
+//	ui packersdk.Ui
+//	vmName string
 //
 // Produces:
 type StepRemoveDevices struct {
