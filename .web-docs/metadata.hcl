@@ -16,7 +16,7 @@ integration {
   }
   component {
     type = "builder"
-    name = "VirtualBox Snapshot"
+    name = "VirtualBox VM"
     slug = "vm"
   }
 }
