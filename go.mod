@@ -9,6 +9,7 @@ require (
 	github.com/hashicorp/packer-plugin-sdk v0.5.2
 	github.com/stretchr/testify v1.8.3
 	github.com/zclconf/go-cty v1.13.3
+	golang.org/x/mod v0.13.0
 )
 
 require (
