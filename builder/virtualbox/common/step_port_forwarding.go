@@ -7,12 +7,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/net"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
+	"golang.org/x/mod/semver"
 )
 
 // This step adds a NAT port forwarding definition so that SSH or WinRM is available
@@ -32,6 +34,48 @@ type StepPortForwarding struct {
 	SkipNatMapping bool
 
 	l *net.Listener
+}
+
+var vboxVerMinNeedLHReachable string
+
+func init() {
+	vboxVerMinNeedLHReachable = semver.Canonical("v7.0")
+	if vboxVerMinNeedLHReachable == "" {
+		fmt.Fprintf(os.Stderr, "Constant version is invalid; this is a bug with the VirtualBox plugin, please open an issue to report it.\n")
+		os.Exit(1)
+	}
+}
+
+func addAccessToLocalhost(state multistep.StateBag) error {
+	driver := state.Get("driver").(Driver)
+	vmName := state.Get("vmName").(string)
+
+	vboxVer, err := driver.Version()
+	if err != nil {
+		return fmt.Errorf("Error getting VirtualBox version: %s", err)
+	}
+	if !strings.HasPrefix(vboxVer, "v") {
+		vboxVer = "v" + vboxVer
+	}
+	if !semver.IsValid(vboxVer) {
+		return fmt.Errorf("The VirtualBox version isn't a valid SemVer: %s", vboxVer)
+	}
+
+	vboxVer = semver.Canonical(vboxVer)
+
+	if semver.Compare(vboxVer, vboxVerMinNeedLHReachable) >= 0 {
+		command := []string{
+			"modifyvm", vmName,
+			"--nat-localhostreachable1",
+			"on",
+		}
+		if err := driver.VBoxManage(command...); err != nil {
+			return fmt.Errorf("Failed to configure host's local network as reachable for NAT interface: %s", err)
+		}
+		log.Printf("[TRACE] VirtualBox's version (%q) is >= %q, setting --nat-localhostreachable1 on", vboxVer, vboxVerMinNeedLHReachable)
+	}
+
+	return nil
 }
 
 func (s *StepPortForwarding) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
@@ -75,6 +119,13 @@ func (s *StepPortForwarding) Run(ctx context.Context, state multistep.StateBag) 
 		}
 		if err := driver.VBoxManage(command...); err != nil {
 			err := fmt.Errorf("Failed to configure NAT interface: %s", err)
+			state.Put("error", err)
+			ui.Error(err.Error())
+			return multistep.ActionHalt
+		}
+
+		// Add the `--nat-localhostreachableN=on` option if necessary
+		if err := addAccessToLocalhost(state); err != nil {
 			state.Put("error", err)
 			ui.Error(err.Error())
 			return multistep.ActionHalt
