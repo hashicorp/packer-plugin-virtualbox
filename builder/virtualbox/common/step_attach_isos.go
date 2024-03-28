@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"path"
 	"path/filepath"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -74,7 +75,7 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 
 		// We have three different potential isos we can attach, so let's
 		// assign each one its own spot so they don't conflict.
-		var controllerName string
+		var controllerName, diskType string
 		var device, port int
 		switch diskCategory {
 		case "boot_iso":
@@ -91,11 +92,17 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 				port = 13
 				device = 0
 			}
+			if path.Ext(isoPath) == ".vhd" {
+				diskType = "hdd"
+			} else {
+				diskType = "dvddrive"
+			}
 			ui.Message("Mounting boot ISO...")
 		case "guest_additions":
 			controllerName = "IDE Controller"
 			port = 1
 			device = 0
+			diskType = "dvddrive"
 			if s.GuestAdditionsInterface == "sata" {
 				controllerName = "SATA Controller"
 				port = 14
@@ -110,6 +117,7 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 			controllerName = "IDE Controller"
 			port = 1
 			device = 1
+			diskType = "dvddrive"
 			if s.ISOInterface == "sata" {
 				controllerName = "SATA Controller"
 				port = 15
@@ -128,7 +136,7 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 			"--storagectl", controllerName,
 			"--port", strconv.Itoa(port),
 			"--device", strconv.Itoa(device),
-			"--type", "dvddrive",
+			"--type", diskType,
 			"--medium", isoPath,
 		}
 		if err := driver.VBoxManage(command...); err != nil {
@@ -138,18 +146,20 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 			return multistep.ActionHalt
 		}
 
-		// Track the disks we've mounted so we can remove them without having
-		// to re-derive what was mounted where
-		unmountCommand := []string{
-			"storageattach", vmName,
-			"--storagectl", controllerName,
-			"--port", strconv.Itoa(port),
-			"--device", strconv.Itoa(device),
-			"--type", "dvddrive",
-			"--medium", "none",
-		}
+		if diskType != "hdd" {
+			// Track the disks we've mounted so we can remove them without having
+			// to re-derive what was mounted where
+			unmountCommand := []string{
+				"storageattach", vmName,
+				"--storagectl", controllerName,
+				"--port", strconv.Itoa(port),
+				"--device", strconv.Itoa(device),
+				"--type", diskType,
+				"--medium", "none",
+			}
 
-		s.diskUnmountCommands[diskCategory] = unmountCommand
+			s.diskUnmountCommands[diskCategory] = unmountCommand
+		}
 	}
 
 	state.Put("disk_unmount_commands", s.diskUnmountCommands)
