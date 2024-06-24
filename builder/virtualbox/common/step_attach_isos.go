@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"path"
 	"path/filepath"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -92,7 +91,7 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 				port = 13
 				device = 0
 			}
-			if path.Ext(isoPath) == ".vhd" {
+			if filepath.Ext(isoPath) == ".vhd" {
 				diskType = "hdd"
 			} else {
 				diskType = "dvddrive"
