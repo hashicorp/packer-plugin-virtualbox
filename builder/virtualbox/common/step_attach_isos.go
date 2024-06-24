@@ -6,7 +6,10 @@ package common
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/packer-plugin-sdk/tmp"
+	"io"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -92,6 +95,19 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 				device = 0
 			}
 			if filepath.Ext(isoPath) == ".vhd" {
+				tempDir, err := tmp.Dir("virtualbox")
+				sourceFile, err := os.Open(isoPath)
+				destinationFile, err := os.Create(tempDir + "/" + filepath.Base(isoPath))
+				ui.Message("Copying boot ISO...")
+				_, err = io.Copy(destinationFile, sourceFile)
+				err = destinationFile.Chmod(0666)
+				isoPath = destinationFile.Name()
+				if err != nil {
+					err = fmt.Errorf("error copying iso file: %s", err)
+					state.Put("error", err)
+					ui.Error(err.Error())
+					return multistep.ActionHalt
+				}
 				diskType = "hdd"
 			} else {
 				diskType = "dvddrive"
