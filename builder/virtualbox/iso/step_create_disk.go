@@ -94,69 +94,71 @@ func (s *stepCreateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 		}
 	}
 
-	if filepath.Ext(state.Get("iso_path").(string)) != ".vhd" {
-		// Create all required disks
-		for i := range diskFullPaths {
-			ui.Say(fmt.Sprintf("Creating hard drive %s with size %d MiB...", diskFullPaths[i], diskSizes[i]))
+	// Don't create disks if the iso is a vhd
+	if filepath.Ext(state.Get("iso_path").(string)) == ".vhd" {
+		return multistep.ActionContinue
+	}
 
-			command := []string{
-				"createhd",
-				"--filename", diskFullPaths[i],
-				"--size", strconv.FormatUint(uint64(diskSizes[i]), 10),
-				"--format", format,
-				"--variant", "Standard",
-			}
+	// Else, create all required disks
+	for i := range diskFullPaths {
+		ui.Say(fmt.Sprintf("Creating hard drive %s with size %d MiB...", diskFullPaths[i], diskSizes[i]))
 
-			err := driver.VBoxManage(command...)
-			if err != nil {
-				err := fmt.Errorf("Error creating hard drive: %s", err)
-				state.Put("error", err)
-				ui.Error(err.Error())
-				return multistep.ActionHalt
-			}
+		command := []string{
+			"createhd",
+			"--filename", diskFullPaths[i],
+			"--size", strconv.FormatUint(uint64(diskSizes[i]), 10),
+			"--format", format,
+			"--variant", "Standard",
 		}
 
-		// Attach the disk to the controller
-		controllerName := "IDE Controller"
-		if config.HardDriveInterface == "sata" {
-			controllerName = "SATA Controller"
-		} else if config.HardDriveInterface == "scsi" {
-			controllerName = "SCSI Controller"
-		} else if config.HardDriveInterface == "virtio" {
-			controllerName = "VirtIO Controller"
-		} else if config.HardDriveInterface == "pcie" {
-			controllerName = "NVMe Controller"
+		err := driver.VBoxManage(command...)
+		if err != nil {
+			err := fmt.Errorf("Error creating hard drive: %s", err)
+			state.Put("error", err)
+			ui.Error(err.Error())
+			return multistep.ActionHalt
 		}
+	}
 
-		nonrotational := "off"
-		if config.HardDriveNonrotational {
-			nonrotational = "on"
+	// Attach the disk to the controller
+	controllerName := "IDE Controller"
+	if config.HardDriveInterface == "sata" {
+		controllerName = "SATA Controller"
+	} else if config.HardDriveInterface == "scsi" {
+		controllerName = "SCSI Controller"
+	} else if config.HardDriveInterface == "virtio" {
+		controllerName = "VirtIO Controller"
+	} else if config.HardDriveInterface == "pcie" {
+		controllerName = "NVMe Controller"
+	}
+
+	nonrotational := "off"
+	if config.HardDriveNonrotational {
+		nonrotational = "on"
+	}
+
+	discard := "off"
+	if config.HardDriveDiscard {
+		discard = "on"
+	}
+
+	for i := range diskFullPaths {
+		command := []string{
+			"storageattach", vmName,
+			"--storagectl", controllerName,
+			"--port", strconv.FormatUint(uint64(i), 10),
+			"--device", "0",
+			"--type", "hdd",
+			"--medium", diskFullPaths[i],
+			"--nonrotational", nonrotational,
+			"--discard", discard,
 		}
-
-		discard := "off"
-		if config.HardDriveDiscard {
-			discard = "on"
+		if err := driver.VBoxManage(command...); err != nil {
+			err := fmt.Errorf("Error attaching hard drive: %s", err)
+			state.Put("error", err)
+			ui.Error(err.Error())
+			return multistep.ActionHalt
 		}
-
-		for i := range diskFullPaths {
-			command := []string{
-				"storageattach", vmName,
-				"--storagectl", controllerName,
-				"--port", strconv.FormatUint(uint64(i), 10),
-				"--device", "0",
-				"--type", "hdd",
-				"--medium", diskFullPaths[i],
-				"--nonrotational", nonrotational,
-				"--discard", discard,
-			}
-			if err := driver.VBoxManage(command...); err != nil {
-				err := fmt.Errorf("Error attaching hard drive: %s", err)
-				state.Put("error", err)
-				ui.Error(err.Error())
-				return multistep.ActionHalt
-			}
-		}
-
 	}
 
 	return multistep.ActionContinue
