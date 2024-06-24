@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	vboxcommon "github.com/hashicorp/packer-plugin-virtualbox/builder/virtualbox/common"
-	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -95,7 +94,7 @@ func (s *stepCreateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 		}
 	}
 
-	if path.Ext(state.Get("iso_path").(string)) != ".vhd" {
+	if filepath.Ext(state.Get("iso_path").(string)) != ".vhd" {
 		// Create all required disks
 		for i := range diskFullPaths {
 			ui.Say(fmt.Sprintf("Creating hard drive %s with size %d MiB...", diskFullPaths[i], diskSizes[i]))
