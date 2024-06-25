@@ -94,6 +94,7 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 				port = 13
 				device = 0
 			}
+			// If iso is a vhd, copy it to a temp dir and attach it as a hdd, else attach it as a dvddrive
 			if filepath.Ext(isoPath) == ".vhd" {
 				ui.Say("Copying boot VHD...")
 				isoPath, err = s.CopyVHD(isoPath)
