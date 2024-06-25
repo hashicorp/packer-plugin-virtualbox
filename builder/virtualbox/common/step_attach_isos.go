@@ -95,15 +95,10 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 				device = 0
 			}
 			if filepath.Ext(isoPath) == ".vhd" {
-				tempDir, err := tmp.Dir("virtualbox")
-				sourceFile, err := os.Open(isoPath)
-				destinationFile, err := os.Create(tempDir + "/" + filepath.Base(isoPath))
-				ui.Message("Copying boot ISO...")
-				_, err = io.Copy(destinationFile, sourceFile)
-				err = destinationFile.Chmod(0666)
-				isoPath = destinationFile.Name()
+				ui.Say("Copying boot VHD...")
+				isoPath, err = s.CopyVHD(isoPath)
 				if err != nil {
-					err = fmt.Errorf("error copying iso file: %s", err)
+					err := fmt.Errorf("error copying VHD file: %s", err)
 					state.Put("error", err)
 					ui.Error(err.Error())
 					return multistep.ActionHalt
@@ -198,4 +193,36 @@ func (s *StepAttachISOs) Cleanup(state multistep.StateBag) {
 			}
 		}
 	}
+}
+
+func (s *StepAttachISOs) CopyVHD(path string) (string, error) {
+	tempDir, err := tmp.Dir("virtualbox")
+	if err != nil {
+		return "", err
+	}
+
+	sourceFile, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer sourceFile.Close()
+
+	destinationFile, err := os.Create(tempDir + "/" + filepath.Base(path))
+	if err != nil {
+		return "", err
+	}
+	defer destinationFile.Close()
+
+	_, err = io.Copy(destinationFile, sourceFile)
+	if err != nil {
+		return "", err
+	}
+
+	err = destinationFile.Chmod(0666)
+	if err != nil {
+		return "", err
+	}
+	newVHDPath := destinationFile.Name()
+
+	return newVHDPath, nil
 }
