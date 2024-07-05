@@ -94,6 +94,7 @@ type FlatConfig struct {
 	HostPortMin               *int              `mapstructure:"host_port_min" required:"false" cty:"host_port_min" hcl:"host_port_min"`
 	HostPortMax               *int              `mapstructure:"host_port_max" required:"false" cty:"host_port_max" hcl:"host_port_max"`
 	SkipNatMapping            *bool             `mapstructure:"skip_nat_mapping" required:"false" cty:"skip_nat_mapping" hcl:"skip_nat_mapping"`
+	SSHListenOnAllInterfaces  *bool             `mapstructure:"ssh_listen_on_all_interfaces" required:"false" cty:"ssh_listen_on_all_interfaces" hcl:"ssh_listen_on_all_interfaces"`
 	SSHHostPortMin            *int              `mapstructure:"ssh_host_port_min" required:"false" cty:"ssh_host_port_min" hcl:"ssh_host_port_min"`
 	SSHHostPortMax            *int              `mapstructure:"ssh_host_port_max" cty:"ssh_host_port_max" hcl:"ssh_host_port_max"`
 	SSHSkipNatMapping         *bool             `mapstructure:"ssh_skip_nat_mapping" required:"false" cty:"ssh_skip_nat_mapping" hcl:"ssh_skip_nat_mapping"`
@@ -216,6 +217,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"host_port_min":                &hcldec.AttrSpec{Name: "host_port_min", Type: cty.Number, Required: false},
 		"host_port_max":                &hcldec.AttrSpec{Name: "host_port_max", Type: cty.Number, Required: false},
 		"skip_nat_mapping":             &hcldec.AttrSpec{Name: "skip_nat_mapping", Type: cty.Bool, Required: false},
+		"ssh_listen_on_all_interfaces": &hcldec.AttrSpec{Name: "ssh_listen_on_all_interfaces", Type: cty.Bool, Required: false},
 		"ssh_host_port_min":            &hcldec.AttrSpec{Name: "ssh_host_port_min", Type: cty.Number, Required: false},
 		"ssh_host_port_max":            &hcldec.AttrSpec{Name: "ssh_host_port_max", Type: cty.Number, Required: false},
 		"ssh_skip_nat_mapping":         &hcldec.AttrSpec{Name: "ssh_skip_nat_mapping", Type: cty.Bool, Required: false},
