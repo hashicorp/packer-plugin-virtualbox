@@ -6,11 +6,12 @@ package common
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/packer-plugin-sdk/tmp"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/hashicorp/packer-plugin-sdk/tmp"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"

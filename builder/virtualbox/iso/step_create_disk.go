@@ -6,12 +6,13 @@ package iso
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/packer-plugin-sdk/multistep"
-	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
-	vboxcommon "github.com/hashicorp/packer-plugin-virtualbox/builder/virtualbox/common"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/hashicorp/packer-plugin-sdk/multistep"
+	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
+	vboxcommon "github.com/hashicorp/packer-plugin-virtualbox/builder/virtualbox/common"
 )
 
 // This step creates the virtual disk that will be used as the
