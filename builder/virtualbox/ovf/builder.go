@@ -107,10 +107,11 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		},
 		new(vboxcommon.StepAttachFloppy),
 		&vboxcommon.StepPortForwarding{
-			CommConfig:     &b.config.CommConfig.Comm,
-			HostPortMin:    b.config.HostPortMin,
-			HostPortMax:    b.config.HostPortMax,
-			SkipNatMapping: b.config.SkipNatMapping,
+			CommConfig:               &b.config.CommConfig.Comm,
+			HostPortMin:              b.config.HostPortMin,
+			HostPortMax:              b.config.HostPortMax,
+			SkipNatMapping:           b.config.SkipNatMapping,
+			SSHListenOnAllInterfaces: b.config.SSHListenOnAllInterfaces,
 		},
 		&vboxcommon.StepVBoxManage{
 			Commands: b.config.VBoxManage,
