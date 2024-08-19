@@ -26,9 +26,8 @@ type CommConfig struct {
 	// does not setup forwarded port mapping for communicator (SSH or WinRM) requests and uses ssh_port or winrm_port
 	// on the host to communicate to the virtual machine.
 	SkipNatMapping bool `mapstructure:"skip_nat_mapping" required:"false"`
-	// Defaults to false. When enabled, the ssh port forwarding will be set to listen on 0.0.0.0
-	// as opposed to 127.0.0.1
-	SSHListenOnAllInterfaces bool `mapstructure:"ssh_listen_on_all_interfaces" required:"false"`
+	// The address where the SSH port forwarding will be set to listen on. This value defaults to `127.0.0.1`.
+	SSHListenAddress string `mapstructure:"ssh_listen_address" required:"false"`
 
 	// These are deprecated, but we keep them around for backwards compatibility
 	// TODO: remove later
@@ -73,6 +72,10 @@ func (c *CommConfig) Prepare(ctx *interpolate.Context) []error {
 	if c.HostPortMin > c.HostPortMax {
 		errs = append(errs,
 			errors.New("host_port_min must be less than host_port_max"))
+	}
+
+	if c.SSHListenAddress == "" {
+		c.SSHListenAddress = "127.0.0.1"
 	}
 
 	return errs
