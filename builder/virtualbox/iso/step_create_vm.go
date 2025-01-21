@@ -6,9 +6,11 @@ package iso
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
+	versionUtil "github.com/hashicorp/go-version"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	vboxcommon "github.com/hashicorp/packer-plugin-virtualbox/builder/virtualbox/common"
@@ -46,11 +48,13 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 	commands = append(commands, []string{"modifyvm", name, "--memory", strconv.Itoa(config.HWConfig.MemorySize)})
 	commands = append(commands, []string{"modifyvm", name, "--usb", map[bool]string{true: "on", false: "off"}[config.HWConfig.USB]})
 
+	vboxVersion, _ := driver.Version()
+	audioDriverArg := audioDriverConfigurationArg(vboxVersion)
 	if strings.ToLower(config.HWConfig.Sound) == "none" {
-		commands = append(commands, []string{"modifyvm", name, "--audio", config.HWConfig.Sound,
+		commands = append(commands, []string{"modifyvm", name, audioDriverArg, config.HWConfig.Sound,
 			"--audiocontroller", config.AudioController})
 	} else {
-		commands = append(commands, []string{"modifyvm", name, "--audio", config.HWConfig.Sound, "--audioin", "on", "--audioout", "on",
+		commands = append(commands, []string{"modifyvm", name, audioDriverArg, config.HWConfig.Sound, "--audioin", "on", "--audioout", "on",
 			"--audiocontroller", config.AudioController})
 	}
 
@@ -130,4 +134,22 @@ func (s *stepCreateVM) Cleanup(state multistep.StateBag) {
 	if err := driver.Delete(s.vmName); err != nil {
 		ui.Error(fmt.Sprintf("Error deleting VM: %s", err))
 	}
+}
+
+func audioDriverConfigurationArg(vboxVersion string) string {
+	// The '--audio' argument was deprecated in v7.0.x giving it
+	//  the highest level of compatibility.
+	compatibleAudioArg := "--audio"
+	currentVersion, err := versionUtil.NewVersion(vboxVersion)
+	if err != nil {
+		log.Printf("[TRACE] attempt to read VBox version %q resulted in an error; using deprecated --audio argument: %s", vboxVersion, err)
+		return compatibleAudioArg
+	}
+
+	constraints, _ := versionUtil.NewConstraint(">= 7.0")
+	if currentVersion != nil && constraints.Check(currentVersion) {
+		compatibleAudioArg = "--audio-driver"
+	}
+
+	return compatibleAudioArg
 }
