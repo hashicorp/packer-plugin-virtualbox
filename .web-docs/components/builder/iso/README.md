@@ -108,6 +108,7 @@ necessary for this build to succeed and can be found further down the page.
   When set to vboxvga, the graphics controller is VirtualBox VGA. This is the default.
   When set to vboxsvga, the graphics controller is VirtualBox SVGA.
   When set to vmsvga, the graphics controller is VMware SVGA.
+  When set to qemuramfb, the graphics controller is Qemu based.
   When set to none, the graphics controller is disabled.
 
 - `gfx_vram_size` (uint) - The VRAM size to be used. By default, this is 4 MiB.
