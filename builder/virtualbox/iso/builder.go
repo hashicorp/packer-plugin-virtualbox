@@ -85,6 +85,7 @@ type Config struct {
 	// When set to vboxvga, the graphics controller is VirtualBox VGA. This is the default.
 	// When set to vboxsvga, the graphics controller is VirtualBox SVGA.
 	// When set to vmsvga, the graphics controller is VMware SVGA.
+	// When set to qemuramfb, The graphics controller is Qemu based.
 	// When set to none, the graphics controller is disabled.
 	GfxController string `mapstructure:"gfx_controller" required:"false"`
 	// The VRAM size to be used. By default, this is 4 MiB.
@@ -275,11 +276,11 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 		b.config.GfxController = "vboxvga"
 	}
 	switch b.config.GfxController {
-	case "vboxvga", "vboxsvga", "vmsvga", "none":
+	case "vboxvga", "vboxsvga", "vmsvga", "none", "qemuramfb":
 		// do nothing
 	default:
 		errs = packersdk.MultiErrorAppend(
-			errs, errors.New("Graphics controller type can only be vboxvga, vboxsvga, vmsvga, none"))
+			errs, errors.New("Graphics controller type can only be vboxvga, vboxsvga, vmsvga, qemuramfb, none"))
 	}
 
 	if b.config.GfxVramSize == 0 {
