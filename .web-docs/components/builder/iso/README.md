@@ -441,6 +441,9 @@ wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg
 - `http_bind_address` (string) - This is the bind address for the HTTP server. Defaults to 0.0.0.0 so that
   it will work with any network interface.
 
+- `http_network_protocol` (string) - Defines the HTTP Network protocol. Valid options are `tcp`, `tcp4`, `tcp6`,
+  `unix`, and `unixpacket`. This value defaults to `tcp`.
+
 <!-- End of code generated from the comments of the HTTPConfig struct in multistep/commonsteps/http_config.go; -->
 
 
@@ -857,6 +860,8 @@ used to do things such as set RAM, CPUs, etc.
 - `skip_nat_mapping` (bool) - Defaults to false. When enabled, Packer
   does not setup forwarded port mapping for communicator (SSH or WinRM) requests and uses ssh_port or winrm_port
   on the host to communicate to the virtual machine.
+
+- `ssh_listen_address` (string) - The address where the SSH port forwarding will be set to listen on. This value defaults to `127.0.0.1`.
 
 <!-- End of code generated from the comments of the CommConfig struct in builder/virtualbox/common/comm_config.go; -->
 
