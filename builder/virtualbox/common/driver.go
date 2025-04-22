@@ -57,8 +57,12 @@ type Driver interface {
 	SuppressMessages() error
 
 	// VBoxManage executes the given VBoxManage command
-	// and returns the stdout channel as string
+	// and returns an error
 	VBoxManage(...string) error
+
+	// VBoxManage executes the given VBoxManage command
+	// and returns the stdout channel as string
+	VBoxManageWithOutput(args ...string) (string, error)
 
 	// Verify checks to make sure that this driver should function
 	// properly. If there is any indication the driver can't function,

@@ -271,15 +271,14 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 			errs, errors.New("NIC type can only be 82540EM, 82543GC, 82545EM, Am79C970A, Am79C973, Am79C960 or virtio"))
 	}
 
-	if b.config.GfxController == "" {
-		b.config.GfxController = "vboxvga"
-	}
-	switch b.config.GfxController {
-	case "vboxvga", "vboxsvga", "vmsvga", "none":
-		// do nothing
-	default:
-		errs = packersdk.MultiErrorAppend(
-			errs, errors.New("Graphics controller type can only be vboxvga, vboxsvga, vmsvga, none"))
+	if b.config.GfxController != "" {
+		switch b.config.GfxController {
+		case "vboxvga", "vboxsvga", "vmsvga", "none":
+			// do nothing
+		default:
+			errs = packersdk.MultiErrorAppend(
+				errs, errors.New("Graphics controller type can only be vboxvga, vboxsvga, vmsvga, none"))
+		}
 	}
 
 	if b.config.GfxVramSize == 0 {
@@ -417,6 +416,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			Comm:         &b.config.Comm,
 		},
 		new(vboxcommon.StepSuppressMessages),
+		new(stepGetVMDefaults),
 		new(stepCreateVM),
 		new(stepCreateDisk),
 		&vboxcommon.StepAttachISOs{
