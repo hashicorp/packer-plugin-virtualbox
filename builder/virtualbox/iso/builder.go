@@ -380,6 +380,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 	}
 
 	steps := []multistep.Step{
+		new(stepGetVMDefaults),
 		&vboxcommon.StepDownloadGuestAdditions{
 			GuestAdditionsMode:   b.config.GuestAdditionsMode,
 			GuestAdditionsURL:    b.config.GuestAdditionsURL,
@@ -416,7 +417,6 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			Comm:         &b.config.Comm,
 		},
 		new(vboxcommon.StepSuppressMessages),
-		new(stepGetVMDefaults),
 		new(stepCreateVM),
 		new(stepCreateDisk),
 		&vboxcommon.StepAttachISOs{

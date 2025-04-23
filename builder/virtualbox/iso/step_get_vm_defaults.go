@@ -6,12 +6,13 @@ package iso
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
-	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
+	// packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	vboxcommon "github.com/hashicorp/packer-plugin-virtualbox/builder/virtualbox/common"
 )
 
@@ -21,7 +22,9 @@ type stepGetVMDefaults struct {
 func (s *stepGetVMDefaults) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	config := state.Get("config").(*Config)
 	driver := state.Get("driver").(vboxcommon.Driver)
-	ui := state.Get("ui").(packersdk.Ui)
+
+	//Add a default value for vmDefaults in the state bag
+	state.Put("vmDefaults", make(map[string]string))
 
 	baseFolder := os.TempDir()
 	vmName := fmt.Sprintf("packer_temp_vm_%d", time.Now().Unix())
@@ -29,40 +32,40 @@ func (s *stepGetVMDefaults) Run(ctx context.Context, state multistep.StateBag) m
 	// Create temp VM
 	command := []string{"createvm", "--name", vmName, "--ostype", config.GuestOSType, "--register", "--default", "--basefolder", baseFolder}
 	if err := driver.VBoxManage(command...); err != nil {
-		err := fmt.Errorf("Error creating temp VM: %s", err)
-		state.Put("error", err)
-		ui.Error(err.Error())
-		return multistep.ActionHalt
+		err := fmt.Errorf("Failed to obtain VM defaults: %s", err)
+		log.Println(err)
+		return multistep.ActionContinue
 	}
+
+	defer func() {
+		// Delete the temp VM
+		command = []string{"unregistervm", vmName, "--delete"}
+		if err := driver.VBoxManage(command...); err != nil {
+			err := fmt.Errorf("Error deleting temp VM: %s", err)
+			log.Println(err)
+		}
+
+	}()
 
 	// Get the temp VM defaults
 	command = []string{"showvminfo", vmName, "--machinereadable"}
 	vminfo, err := driver.VBoxManageWithOutput(command...)
 	if err != nil {
-		err := fmt.Errorf("Error reading VM info: %s", err)
-		state.Put("error", err)
-		ui.Error(err.Error())
-		return multistep.ActionHalt
-	}
-
-	// Delete the temp VM
-	command = []string{"unregistervm", vmName, "--delete"}
-	if err := driver.VBoxManage(command...); err != nil {
-		err := fmt.Errorf("Error deleting temp VM: %s", err)
-		state.Put("error", err)
-		ui.Error(err.Error())
-		return multistep.ActionHalt
+		err := fmt.Errorf("Failed to obtain VM defaults: %s", err)
+		log.Println(err)
+		return multistep.ActionContinue
 	}
 
 	defaults, err := parseVMInfoOutput(vminfo)
 	if err != nil {
-		ui.Error("Error getting VM defaults: " + err.Error())
-		return multistep.ActionHalt
+		err := fmt.Errorf("Error parsing VM defaults: %s", err)
+		log.Println(err)
+		return multistep.ActionContinue
 	}
 
 	// Store the defaults in the state bag
 	state.Put("vmDefaults", defaults)
-	ui.Message("VM defaults retrieved successfully.")
+	log.Println("VM defaults retrieved successfully.")
 
 	return multistep.ActionContinue
 }
