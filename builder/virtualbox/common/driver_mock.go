@@ -54,6 +54,9 @@ type DriverMock struct {
 	VBoxManageCalls [][]string
 	VBoxManageErrs  []error
 
+	VBoxManageWithOutputCalls [][]string
+	VBoxManageWithOutputErrs  []error
+
 	VerifyCalled bool
 	VerifyErr    error
 
@@ -151,6 +154,15 @@ func (d *DriverMock) VBoxManage(args ...string) error {
 		return d.VBoxManageErrs[len(d.VBoxManageCalls)-1]
 	}
 	return nil
+}
+
+func (d *DriverMock) VBoxManageWithOutput(args ...string) (string, error) {
+	d.VBoxManageCalls = append(d.VBoxManageCalls, args)
+
+	if len(d.VBoxManageErrs) >= len(d.VBoxManageCalls) {
+		return "", d.VBoxManageErrs[len(d.VBoxManageCalls)-1]
+	}
+	return "", nil
 }
 
 func (d *DriverMock) Verify() error {
