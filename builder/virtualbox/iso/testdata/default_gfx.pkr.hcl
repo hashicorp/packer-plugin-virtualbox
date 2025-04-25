@@ -53,10 +53,8 @@ source "virtualbox-iso" "ubuntu_2404" {
         ["modifyvm", "{{.Name}}", "--nat-localhostreachable1", "on"],
 
         # Audio
-        ["modifyvm", "{{.Name}}", "--audio-driver", "coreaudio"],
-        ["modifyvm", "{{.Name}}", "--audio-controller", "hda"],
         ["modifyvm", "{{.Name}}", "--audioin", "off"],
-        ["modifyvm", "{{.Name}}", "--audioout", "on"],
+        ["modifyvm", "{{.Name}}", "--audioout", "off"],
 
         # Other settings
         ["modifyvm", "{{.Name}}", "--rtcuseutc", "on"],

@@ -6,8 +6,10 @@ package iso
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/packer-plugin-sdk/acctest"
@@ -81,8 +83,12 @@ func TestAccBuilder_incorrectGfxController(t *testing.T) {
 			return nil
 		},
 		Check: func(buildCommand *exec.Cmd, logfile string) error {
+			content, err := os.ReadFile(logfile)
+			if err != nil {
+				return fmt.Errorf("failed to read logfile: %v", err)
+			}
 			if buildCommand.ProcessState != nil {
-				if buildCommand.ProcessState.ExitCode() == 0 {
+				if buildCommand.ProcessState.ExitCode() == 0 || !strings.Contains(string(content), "Failed to construct device 'vga'") {
 					return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
 				}
 			}
