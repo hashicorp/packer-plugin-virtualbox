@@ -86,6 +86,7 @@ type Config struct {
 	// When set to vboxsvga, the graphics controller is VirtualBox SVGA.
 	// When set to vmsvga, the graphics controller is VMware SVGA.
 	// When set to none, the graphics controller is disabled.
+	// When this configuration is omitted, the default value is determined by VirtualBox.
 	GfxController string `mapstructure:"gfx_controller" required:"false"`
 	// The VRAM size to be used. By default, this is 4 MiB.
 	GfxVramSize uint `mapstructure:"gfx_vram_size" required:"false"`
@@ -271,11 +272,8 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 			errs, errors.New("NIC type can only be 82540EM, 82543GC, 82545EM, Am79C970A, Am79C973, Am79C960 or virtio"))
 	}
 
-	if b.config.GfxController == "" {
-		b.config.GfxController = "vboxvga"
-	}
 	switch b.config.GfxController {
-	case "vboxvga", "vboxsvga", "vmsvga", "none":
+	case "vboxvga", "vboxsvga", "vmsvga", "none", "":
 		// do nothing
 	default:
 		errs = packersdk.MultiErrorAppend(
@@ -381,6 +379,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 	}
 
 	steps := []multistep.Step{
+		new(stepGetVMDefaults),
 		&vboxcommon.StepDownloadGuestAdditions{
 			GuestAdditionsMode:   b.config.GuestAdditionsMode,
 			GuestAdditionsURL:    b.config.GuestAdditionsURL,
