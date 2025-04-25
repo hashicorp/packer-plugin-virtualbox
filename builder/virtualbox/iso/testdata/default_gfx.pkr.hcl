@@ -27,7 +27,7 @@ source "virtualbox-iso" "ubuntu_2404" {
   # headless          = true
   http_directory    = "./testdata/http_ubuntu_2404"
   ssh_timeout       = "60m"
-  boot_wait         = "10s"
+  boot_wait         = "20s"
   boot_command = [
     "c<wait><wait><wait>",
     "linux /casper/vmlinuz --- autoinstall ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"<enter><wait>",
