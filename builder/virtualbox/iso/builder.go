@@ -86,6 +86,7 @@ type Config struct {
 	// When set to vboxsvga, the graphics controller is VirtualBox SVGA.
 	// When set to vmsvga, the graphics controller is VMware SVGA.
 	// When set to none, the graphics controller is disabled.
+	// When this configuration is omitted, the default value is determined by VirtualBox.
 	GfxController string `mapstructure:"gfx_controller" required:"false"`
 	// The VRAM size to be used. By default, this is 4 MiB.
 	GfxVramSize uint `mapstructure:"gfx_vram_size" required:"false"`
