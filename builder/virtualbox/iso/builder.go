@@ -271,14 +271,12 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 			errs, errors.New("NIC type can only be 82540EM, 82543GC, 82545EM, Am79C970A, Am79C973, Am79C960 or virtio"))
 	}
 
-	if b.config.GfxController != "" {
-		switch b.config.GfxController {
-		case "vboxvga", "vboxsvga", "vmsvga", "none":
-			// do nothing
-		default:
-			errs = packersdk.MultiErrorAppend(
-				errs, errors.New("Graphics controller type can only be vboxvga, vboxsvga, vmsvga, none"))
-		}
+	switch b.config.GfxController {
+	case "vboxvga", "vboxsvga", "vmsvga", "none", "":
+		// do nothing
+	default:
+		errs = packersdk.MultiErrorAppend(
+			errs, errors.New("Graphics controller type can only be vboxvga, vboxsvga, vmsvga, none"))
 	}
 
 	if b.config.GfxVramSize == 0 {

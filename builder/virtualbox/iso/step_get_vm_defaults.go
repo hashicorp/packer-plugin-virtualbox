@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -28,6 +29,7 @@ func (s *stepGetVMDefaults) Run(ctx context.Context, state multistep.StateBag) m
 
 	baseFolder := os.TempDir()
 	vmName := fmt.Sprintf("packer_temp_vm_%d", time.Now().Unix())
+	defer os.RemoveAll(filepath.Join(baseFolder, vmName))
 
 	// Create temp VM
 	command := []string{"createvm", "--name", vmName, "--ostype", config.GuestOSType, "--register", "--default", "--basefolder", baseFolder}
