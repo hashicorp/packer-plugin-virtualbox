@@ -19,7 +19,7 @@ Then, run [`packer init`](https://developer.hashicorp.com/packer/docs/commands/i
 packer {
   required_plugins {
     virtualbox = {
-      version = ">= 1.1.1"
+      version = ">= 1.1.2"
       source  = "github.com/hashicorp/virtualbox"
     }
   }
