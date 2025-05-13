@@ -109,6 +109,7 @@ necessary for this build to succeed and can be found further down the page.
   When set to vboxsvga, the graphics controller is VirtualBox SVGA.
   When set to vmsvga, the graphics controller is VMware SVGA.
   When set to none, the graphics controller is disabled.
+  When this configuration is omitted, the default value is determined by VirtualBox.
 
 - `gfx_vram_size` (uint) - The VRAM size to be used. By default, this is 4 MiB.
 

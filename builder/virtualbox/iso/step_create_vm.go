@@ -70,6 +70,19 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 		"--nictype6", config.NICType,
 		"--nictype7", config.NICType,
 		"--nictype8", config.NICType})
+
+	// Set the graphics controller, defaulting to "vboxvga" unless overridden by "vmDefaults" or config.
+	if config.GfxController == "" {
+		config.GfxController = "vboxvga"
+		vmDefaultConfigs, defaultConfigsOk := state.GetOk("vmDefaults")
+		if defaultConfigsOk {
+			vmDefaultConfigs := vmDefaultConfigs.(map[string]string)
+			if _, ok := vmDefaultConfigs["graphicscontroller"]; ok {
+				config.GfxController = vmDefaultConfigs["graphicscontroller"]
+			}
+		}
+	}
+
 	commands = append(commands, []string{"modifyvm", name, "--graphicscontroller", config.GfxController, "--vram", strconv.FormatUint(uint64(config.GfxVramSize), 10)})
 	if config.RTCTimeBase == "UTC" {
 		commands = append(commands, []string{"modifyvm", name, "--rtcuseutc", "on"})
