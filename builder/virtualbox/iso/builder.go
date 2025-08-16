@@ -224,7 +224,7 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 		b.config.Chipset = "piix3"
 	}
 	switch b.config.Chipset {
-	case "piix3", "ich9":
+	case "piix3", "ich9", "armv8", "armv8virtual":
 		// do nothing
 	default:
 		errs = packersdk.MultiErrorAppend(
