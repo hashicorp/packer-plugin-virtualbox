@@ -6,8 +6,12 @@ package common
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"path/filepath"
+
+	"github.com/hashicorp/packer-plugin-sdk/tmp"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -74,7 +78,7 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 
 		// We have three different potential isos we can attach, so let's
 		// assign each one its own spot so they don't conflict.
-		var controllerName string
+		var controllerName, diskType string
 		var device, port int
 		switch diskCategory {
 		case "boot_iso":
@@ -91,11 +95,26 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 				port = 13
 				device = 0
 			}
+			// If iso is a vhd, copy it to a temp dir and attach it as a hdd, else attach it as a dvddrive
+			if filepath.Ext(isoPath) == ".vhd" {
+				ui.Say("Copying boot VHD...")
+				isoPath, err = s.CopyVHD(isoPath)
+				if err != nil {
+					err := fmt.Errorf("error copying VHD file: %s", err)
+					state.Put("error", err)
+					ui.Error(err.Error())
+					return multistep.ActionHalt
+				}
+				diskType = "hdd"
+			} else {
+				diskType = "dvddrive"
+			}
 			ui.Message("Mounting boot ISO...")
 		case "guest_additions":
 			controllerName = "IDE Controller"
 			port = 1
 			device = 0
+			diskType = "dvddrive"
 			if s.GuestAdditionsInterface == "sata" {
 				controllerName = "SATA Controller"
 				port = 14
@@ -110,6 +129,7 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 			controllerName = "IDE Controller"
 			port = 1
 			device = 1
+			diskType = "dvddrive"
 			if s.ISOInterface == "sata" {
 				controllerName = "SATA Controller"
 				port = 15
@@ -128,7 +148,7 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 			"--storagectl", controllerName,
 			"--port", strconv.Itoa(port),
 			"--device", strconv.Itoa(device),
-			"--type", "dvddrive",
+			"--type", diskType,
 			"--medium", isoPath,
 		}
 		if err := driver.VBoxManage(command...); err != nil {
@@ -138,18 +158,20 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 			return multistep.ActionHalt
 		}
 
-		// Track the disks we've mounted so we can remove them without having
-		// to re-derive what was mounted where
-		unmountCommand := []string{
-			"storageattach", vmName,
-			"--storagectl", controllerName,
-			"--port", strconv.Itoa(port),
-			"--device", strconv.Itoa(device),
-			"--type", "dvddrive",
-			"--medium", "none",
-		}
+		if diskType != "hdd" {
+			// Track the disks we've mounted so we can remove them without having
+			// to re-derive what was mounted where
+			unmountCommand := []string{
+				"storageattach", vmName,
+				"--storagectl", controllerName,
+				"--port", strconv.Itoa(port),
+				"--device", strconv.Itoa(device),
+				"--type", diskType,
+				"--medium", "none",
+			}
 
-		s.diskUnmountCommands[diskCategory] = unmountCommand
+			s.diskUnmountCommands[diskCategory] = unmountCommand
+		}
 	}
 
 	state.Put("disk_unmount_commands", s.diskUnmountCommands)
@@ -173,4 +195,36 @@ func (s *StepAttachISOs) Cleanup(state multistep.StateBag) {
 			}
 		}
 	}
+}
+
+func (s *StepAttachISOs) CopyVHD(path string) (string, error) {
+	tempDir, err := tmp.Dir("virtualbox")
+	if err != nil {
+		return "", err
+	}
+
+	sourceFile, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer sourceFile.Close()
+
+	destinationFile, err := os.Create(tempDir + "/" + filepath.Base(path))
+	if err != nil {
+		return "", err
+	}
+	defer destinationFile.Close()
+
+	_, err = io.Copy(destinationFile, sourceFile)
+	if err != nil {
+		return "", err
+	}
+
+	err = destinationFile.Chmod(0666)
+	if err != nil {
+		return "", err
+	}
+	newVHDPath := destinationFile.Name()
+
+	return newVHDPath, nil
 }
