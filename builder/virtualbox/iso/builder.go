@@ -51,6 +51,7 @@ type Config struct {
 	// The chipset to be used: PIIX3 or ICH9.
 	// When set to piix3, the firmare is PIIX3. This is the default.
 	// When set to ich9, the firmare is ICH9.
+	// When set to armv8, the firmare is ARMv8.
 	// When set to armv8virtual, the firmare is ARMv8 Virtual.
 	Chipset string `mapstructure:"chipset" required:"false"`
 	// The firmware to be used: BIOS or EFI.
@@ -245,11 +246,11 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 		b.config.Chipset = "piix3"
 	}
 	switch b.config.Chipset {
-	case "piix3", "ich9":
+	case "piix3", "ich9", "armv8", "armv8virtual":
 		// do nothing
 	default:
 		errs = packersdk.MultiErrorAppend(
-			errs, errors.New("chipset can only be piix3 or ich9"))
+			errs, errors.New("chipset can only be piix3, ich9, armv8, or armv8virtual"))
 	}
 
 	if b.config.Firmware == "" {
@@ -290,7 +291,7 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 		// do nothing
 	default:
 		errs = packersdk.MultiErrorAppend(
-			errs, errors.New("NIC type can only be 82540EM, 82543GC, 82545EM, Am79C970A, Am79C973, Am79C960, usbnet,om_ virtio"))
+			errs, errors.New("NIC type can only be 82540EM, 82543GC, 82545EM, Am79C970A, Am79C973, Am79C960, usbnet, virtio"))
 	}
 
 	switch b.config.GfxController {

@@ -3,6 +3,7 @@
 - `chipset` (string) - The chipset to be used: PIIX3 or ICH9.
   When set to piix3, the firmare is PIIX3. This is the default.
   When set to ich9, the firmare is ICH9.
+  When set to armv8, the firmare is ARMv8.
   When set to armv8virtual, the firmare is ARMv8 Virtual.
 
 - `firmware` (string) - The firmware to be used: BIOS or EFI.
@@ -92,14 +93,14 @@
   Virtualbox 6, install an [extension
   pack](https://www.virtualbox.org/wiki/Downloads#VirtualBox6.0.14OracleVMVirtualBoxExtensionPack)
   and you will need to enable EFI mode for nvme to work, ex:
-  
+
   In JSON:
   ```json
    "vboxmanage": [
         [ "modifyvm", "{{.Name}}", "--firmware", "EFI" ],
    ]
   ```
-  
+
   In HCL2:
   ```hcl
    vboxmanage = [
