@@ -128,6 +128,9 @@ type FlatConfig struct {
 	DiskSize                  *uint             `mapstructure:"disk_size" required:"false" cty:"disk_size" hcl:"disk_size"`
 	NICType                   *string           `mapstructure:"nic_type" required:"false" cty:"nic_type" hcl:"nic_type"`
 	AudioController           *string           `mapstructure:"audio_controller" required:"false" cty:"audio_controller" hcl:"audio_controller"`
+	USBController             *string           `mapstructure:"usb_controller" required:"false" cty:"usb_controller" hcl:"usb_controller"`
+	Mouse                     *string           `mapstructure:"mouse" required:"false" cty:"mouse" hcl:"mouse"`
+	Keyboard                  *string           `mapstructure:"keyboard" required:"false" cty:"keyboard" hcl:"keyboard"`
 	GfxController             *string           `mapstructure:"gfx_controller" required:"false" cty:"gfx_controller" hcl:"gfx_controller"`
 	GfxVramSize               *uint             `mapstructure:"gfx_vram_size" required:"false" cty:"gfx_vram_size" hcl:"gfx_vram_size"`
 	GfxAccelerate3D           *bool             `mapstructure:"gfx_accelerate_3d" required:"false" cty:"gfx_accelerate_3d" hcl:"gfx_accelerate_3d"`
@@ -275,6 +278,9 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"disk_size":                    &hcldec.AttrSpec{Name: "disk_size", Type: cty.Number, Required: false},
 		"nic_type":                     &hcldec.AttrSpec{Name: "nic_type", Type: cty.String, Required: false},
 		"audio_controller":             &hcldec.AttrSpec{Name: "audio_controller", Type: cty.String, Required: false},
+		"usb_controller":               &hcldec.AttrSpec{Name: "usb_controller", Type: cty.String, Required: false},
+		"mouse":                        &hcldec.AttrSpec{Name: "mouse", Type: cty.String, Required: false},
+		"keyboard":                     &hcldec.AttrSpec{Name: "keyboard", Type: cty.String, Required: false},
 		"gfx_controller":               &hcldec.AttrSpec{Name: "gfx_controller", Type: cty.String, Required: false},
 		"gfx_vram_size":                &hcldec.AttrSpec{Name: "gfx_vram_size", Type: cty.Number, Required: false},
 		"gfx_accelerate_3d":            &hcldec.AttrSpec{Name: "gfx_accelerate_3d", Type: cty.Bool, Required: false},
