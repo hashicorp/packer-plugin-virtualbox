@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/bootcommand"
@@ -105,6 +106,10 @@ type Config struct {
 	// ostypes. Setting the correct value hints to VirtualBox how to optimize
 	// the virtual hardware to work best with that operating system.
 	GuestOSType string `mapstructure:"guest_os_type" required:"false"`
+	// The format of the virtual disk to create. Valid values are VDI, VMDK,
+	// and VHD. Defaults to VDI. VDI supports discard/compact operations.
+	// VMDK is the OVF standard. VHD is used by Hyper-V.
+	DiskFormat string `mapstructure:"disk_format" required:"false"`
 	// When this value is set to true, a VDI image will be shrunk in response
 	// to the trim command from the guest OS. The size of the cleared area must
 	// be at least 1MB. Also set hard_drive_nonrotational to true to enable
@@ -255,6 +260,16 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 
 	if b.config.DiskSize == 0 {
 		b.config.DiskSize = 40000
+	}
+
+	if b.config.DiskFormat == "" {
+		b.config.DiskFormat = "VDI"
+	}
+	b.config.DiskFormat = strings.ToUpper(b.config.DiskFormat)
+	switch b.config.DiskFormat {
+	case "VDI", "VMDK", "VHD":
+	default:
+		errs = packersdk.MultiErrorAppend(errs, fmt.Errorf("invalid disk_format '%s', must be VDI, VMDK, or VHD", b.config.DiskFormat))
 	}
 
 	if b.config.HardDriveInterface == "" {
@@ -492,6 +507,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			Bundling:       b.config.VBoxBundleConfig,
 			SkipNatMapping: b.config.SkipNatMapping,
 			SkipExport:     b.config.SkipExport,
+			DiskFormat:     b.config.DiskFormat,
 		},
 	}
 

@@ -133,6 +133,7 @@ type FlatConfig struct {
 	GfxAccelerate3D           *bool             `mapstructure:"gfx_accelerate_3d" required:"false" cty:"gfx_accelerate_3d" hcl:"gfx_accelerate_3d"`
 	GfxEFIResolution          *string           `mapstructure:"gfx_efi_resolution" required:"false" cty:"gfx_efi_resolution" hcl:"gfx_efi_resolution"`
 	GuestOSType               *string           `mapstructure:"guest_os_type" required:"false" cty:"guest_os_type" hcl:"guest_os_type"`
+	DiskFormat                *string           `mapstructure:"disk_format" required:"false" cty:"disk_format" hcl:"disk_format"`
 	HardDriveDiscard          *bool             `mapstructure:"hard_drive_discard" required:"false" cty:"hard_drive_discard" hcl:"hard_drive_discard"`
 	HardDriveInterface        *string           `mapstructure:"hard_drive_interface" required:"false" cty:"hard_drive_interface" hcl:"hard_drive_interface"`
 	SATAPortCount             *int              `mapstructure:"sata_port_count" required:"false" cty:"sata_port_count" hcl:"sata_port_count"`
@@ -280,6 +281,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"gfx_accelerate_3d":            &hcldec.AttrSpec{Name: "gfx_accelerate_3d", Type: cty.Bool, Required: false},
 		"gfx_efi_resolution":           &hcldec.AttrSpec{Name: "gfx_efi_resolution", Type: cty.String, Required: false},
 		"guest_os_type":                &hcldec.AttrSpec{Name: "guest_os_type", Type: cty.String, Required: false},
+		"disk_format":                  &hcldec.AttrSpec{Name: "disk_format", Type: cty.String, Required: false},
 		"hard_drive_discard":           &hcldec.AttrSpec{Name: "hard_drive_discard", Type: cty.Bool, Required: false},
 		"hard_drive_interface":         &hcldec.AttrSpec{Name: "hard_drive_interface", Type: cty.String, Required: false},
 		"sata_port_count":              &hcldec.AttrSpec{Name: "sata_port_count", Type: cty.Number, Required: false},
