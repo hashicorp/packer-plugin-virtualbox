@@ -25,7 +25,7 @@ func (s *stepCreateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	driver := state.Get("driver").(vboxcommon.Driver)
 	ui := state.Get("ui").(packersdk.Ui)
 	vmName := state.Get("vmName").(string)
-	format := "VDI"
+	format := config.DiskFormat
 
 	// The main disk and additional disks
 	diskFullPaths := []string{}
