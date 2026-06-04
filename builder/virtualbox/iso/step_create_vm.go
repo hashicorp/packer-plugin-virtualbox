@@ -46,16 +46,55 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 		commands = append(commands, []string{"modifyvm", name, "--ioapic", "on"})
 	}
 	commands = append(commands, []string{"modifyvm", name, "--memory", strconv.Itoa(config.HWConfig.MemorySize)})
-	commands = append(commands, []string{"modifyvm", name, "--usb", map[bool]string{true: "on", false: "off"}[config.HWConfig.USB]})
+	// Configure USB controller
+	if config.HWConfig.USB && strings.ToLower(config.USBController) != "none" {
+		commands = append(commands, []string{"modifyvm", name, "--usb", "on"})
+		commands = append(commands, []string{"modifyvm", name, "--usbohci", "off", "--usbehci", "off", "--usbxhci", "off"})
+		switch strings.ToLower(config.USBController) {
+		case "ohci":
+			commands = append(commands, []string{"modifyvm", name, "--usbohci", "on"})
+		case "ehci":
+			commands = append(commands, []string{"modifyvm", name, "--usbehci", "on"})
+		case "xhci":
+			commands = append(commands, []string{"modifyvm", name, "--usbxhci", "on"})
+		}
+	} else {
+		commands = append(commands, []string{"modifyvm", name, "--usb", "off"})
+	}
 
 	vboxVersion, _ := driver.Version()
 	audioDriverArg := audioDriverConfigurationArg(vboxVersion)
-	if strings.ToLower(config.HWConfig.Sound) == "none" {
-		commands = append(commands, []string{"modifyvm", name, audioDriverArg, config.HWConfig.Sound,
-			"--audiocontroller", config.AudioController})
+	// Only configure audio if the audio controller is not set to "none"
+	if strings.ToLower(config.AudioController) == "none" {
+		commands = append(commands, []string{"modifyvm", name, "--audio-enabled", "off"})
 	} else {
-		commands = append(commands, []string{"modifyvm", name, audioDriverArg, config.HWConfig.Sound, "--audioin", "on", "--audioout", "on",
-			"--audiocontroller", config.AudioController})
+		if strings.ToLower(config.HWConfig.Sound) == "none" {
+			commands = append(commands, []string{"modifyvm", name, audioDriverArg, config.HWConfig.Sound,
+				"--audiocontroller", config.AudioController})
+		} else {
+			commands = append(commands, []string{"modifyvm", name, audioDriverArg, config.HWConfig.Sound, "--audioin", "on", "--audioout", "on",
+				"--audiocontroller", config.AudioController})
+		}
+	}
+
+	// Configure mouse device
+	switch strings.ToLower(config.Mouse) {
+	case "ps2":
+		commands = append(commands, []string{"modifyvm", name, "--mouse", "ps2"})
+	case "usb":
+		commands = append(commands, []string{"modifyvm", name, "--mouse", "usb"})
+	case "usbtablet":
+		commands = append(commands, []string{"modifyvm", name, "--mouse", "usbtablet"})
+	case "usbmultitouch":
+		commands = append(commands, []string{"modifyvm", name, "--mouse", "usbmultitouch"})
+	}
+
+	// Configure keyboard device
+	switch strings.ToLower(config.Keyboard) {
+	case "ps2":
+		commands = append(commands, []string{"modifyvm", name, "--keyboard", "ps2"})
+	case "usb":
+		commands = append(commands, []string{"modifyvm", name, "--keyboard", "usb"})
 	}
 
 	commands = append(commands, []string{"modifyvm", name, "--chipset", config.Chipset})
@@ -71,9 +110,9 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 		"--nictype7", config.NICType,
 		"--nictype8", config.NICType})
 
-	// Set the graphics controller, defaulting to "vboxvga" unless overridden by "vmDefaults" or config.
+	// Set the graphics controller, defaulting to "vboxsvga" unless overridden by "vmDefaults" or config.
 	if config.GfxController == "" {
-		config.GfxController = "vboxvga"
+		config.GfxController = "vboxsvga"
 		vmDefaultConfigs, defaultConfigsOk := state.GetOk("vmDefaults")
 		if defaultConfigsOk {
 			vmDefaultConfigs := vmDefaultConfigs.(map[string]string)

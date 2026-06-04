@@ -51,6 +51,8 @@ type Config struct {
 	// The chipset to be used: PIIX3 or ICH9.
 	// When set to piix3, the firmare is PIIX3. This is the default.
 	// When set to ich9, the firmare is ICH9.
+	// When set to armv8, the firmare is ARMv8.
+	// When set to armv8virtual, the firmare is ARMv8 Virtual.
 	Chipset string `mapstructure:"chipset" required:"false"`
 	// The firmware to be used: BIOS or EFI.
 	// When set to bios, the firmare is BIOS. This is the default.
@@ -75,16 +77,36 @@ type Config struct {
 	// When set to Am79C973, the NICs are AMD PCNet-FAST III network card (Am79C973).
 	// When set to Am79C960, the NICs are AMD PCnet-ISA/NE2100 (Am79C960).
 	// When set to virtio, the NICs are VirtIO.
+	// When set to usbnet, the NICs are USB Network.
 	NICType string `mapstructure:"nic_type" required:"false"`
 	// The audio controller type to be used.
 	// When set to ac97, the audio controller is ICH AC97. This is the default.
 	// When set to hda, the audio controller is Intel HD Audio.
 	// When set to sb16, the audio controller is SoundBlaster 16.
+	// When set to none, the audio controller is disabled.
 	AudioController string `mapstructure:"audio_controller" required:"false"`
+	// The USB controller type to be used.
+	// When set to ohci, the USB controller is USB 1.1 (OHCI).
+	// When set to ehci, the USB controller is USB 2.0 (EHCI). This is the default when usb is enabled.
+	// When set to xhci, the USB controller is USB 3.0 (xHCI).
+	// When set to none, no USB controller is configured even if usb is enabled.
+	// This setting is only used when usb is set to true.
+	USBController string `mapstructure:"usb_controller" required:"false"`
+	// The mouse device type to be used.
+	// When set to ps2, a PS/2 mouse is emulated. This is the default.
+	// When set to usb, a USB mouse is emulated (requires USB to be enabled).
+	// When set to usbtablet, a USB tablet device is emulated (absolute positioning, requires USB).
+	// When set to usbmultitouch, a USB multi-touch device is emulated (requires USB).
+	Mouse string `mapstructure:"mouse" required:"false"`
+	// The keyboard device type to be used.
+	// When set to ps2, a PS/2 keyboard is emulated. This is the default.
+	// When set to usb, a USB keyboard is emulated (requires USB to be enabled).
+	Keyboard string `mapstructure:"keyboard" required:"false"`
 	// The graphics controller type to be used.
 	// When set to vboxvga, the graphics controller is VirtualBox VGA. This is the default.
 	// When set to vboxsvga, the graphics controller is VirtualBox SVGA.
 	// When set to vmsvga, the graphics controller is VMware SVGA.
+	// When set to qemuramfb, the graphics controller is QEMU RAMFB.
 	// When set to none, the graphics controller is disabled.
 	// When this configuration is omitted, the default value is determined by VirtualBox.
 	GfxController string `mapstructure:"gfx_controller" required:"false"`
@@ -224,11 +246,11 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 		b.config.Chipset = "piix3"
 	}
 	switch b.config.Chipset {
-	case "piix3", "ich9":
+	case "piix3", "ich9", "armv8", "armv8virtual":
 		// do nothing
 	default:
 		errs = packersdk.MultiErrorAppend(
-			errs, errors.New("chipset can only be piix3 or ich9"))
+			errs, errors.New("chipset can only be piix3, ich9, armv8, or armv8virtual"))
 	}
 
 	if b.config.Firmware == "" {
@@ -265,19 +287,19 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 		b.config.NICType = "82540EM"
 	}
 	switch b.config.NICType {
-	case "82540EM", "82543GC", "82545EM", "Am79C970A", "Am79C973", "Am79C960", "virtio":
+	case "82540EM", "82543GC", "82545EM", "Am79C970A", "Am79C973", "Am79C960", "virtio", "usbnet":
 		// do nothing
 	default:
 		errs = packersdk.MultiErrorAppend(
-			errs, errors.New("NIC type can only be 82540EM, 82543GC, 82545EM, Am79C970A, Am79C973, Am79C960 or virtio"))
+			errs, errors.New("NIC type can only be 82540EM, 82543GC, 82545EM, Am79C970A, Am79C973, Am79C960, usbnet, virtio"))
 	}
 
 	switch b.config.GfxController {
-	case "vboxvga", "vboxsvga", "vmsvga", "none", "":
+	case "vboxvga", "vboxsvga", "vmsvga", "qemuramfb", "none", "":
 		// do nothing
 	default:
 		errs = packersdk.MultiErrorAppend(
-			errs, errors.New("Graphics controller type can only be vboxvga, vboxsvga, vmsvga, none"))
+			errs, errors.New("Graphics controller type can only be vboxvga, vboxsvga, vmsvga, qemuramfb, none"))
 	}
 
 	if b.config.GfxVramSize == 0 {
@@ -302,11 +324,44 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 		b.config.AudioController = "ac97"
 	}
 	switch b.config.AudioController {
-	case "ac97", "hda", "sb16":
+	case "ac97", "hda", "sb16", "none":
 		// do nothing
 	default:
 		errs = packersdk.MultiErrorAppend(
 			errs, errors.New("Audio controller type can only be ac97, hda or sb16"))
+	}
+
+	if b.config.USBController == "" {
+		b.config.USBController = "ehci"
+	}
+	switch b.config.USBController {
+	case "ohci", "ehci", "xhci", "none":
+		// do nothing
+	default:
+		errs = packersdk.MultiErrorAppend(
+			errs, errors.New("USB controller type can only be ohci, ehci, xhci, or none"))
+	}
+
+	if b.config.Mouse == "" {
+		b.config.Mouse = "ps2"
+	}
+	switch b.config.Mouse {
+	case "ps2", "usb", "usbtablet", "usbmultitouch":
+		// do nothing
+	default:
+		errs = packersdk.MultiErrorAppend(
+			errs, errors.New("Mouse type can only be ps2, usb, usbtablet, or usbmultitouch"))
+	}
+
+	if b.config.Keyboard == "" {
+		b.config.Keyboard = "ps2"
+	}
+	switch b.config.Keyboard {
+	case "ps2", "usb":
+		// do nothing
+	default:
+		errs = packersdk.MultiErrorAppend(
+			errs, errors.New("Keyboard type can only be ps2 or usb"))
 	}
 
 	if b.config.GuestOSType == "" {
