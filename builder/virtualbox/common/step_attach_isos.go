@@ -79,43 +79,43 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 		switch diskCategory {
 		case "boot_iso":
 			// figure out controller path
-			controllerName = "IDE Controller"
+			controllerName = "IDE"
 			port = 0
 			device = 1
 			if s.ISOInterface == "sata" {
-				controllerName = "SATA Controller"
+				controllerName = "SATA"
 				port = 13
 				device = 0
 			} else if s.ISOInterface == "virtio" {
-				controllerName = "VirtIO Controller"
+				controllerName = "VirtioSCSI"
 				port = 13
 				device = 0
 			}
 			ui.Message("Mounting boot ISO...")
 		case "guest_additions":
-			controllerName = "IDE Controller"
+			controllerName = "IDE"
 			port = 1
 			device = 0
 			if s.GuestAdditionsInterface == "sata" {
-				controllerName = "SATA Controller"
+				controllerName = "SATA"
 				port = 14
 				device = 0
 			} else if s.GuestAdditionsInterface == "virtio" {
-				controllerName = "VirtIO Controller"
+				controllerName = "VirtioSCSI"
 				port = 14
 				device = 0
 			}
 			ui.Message("Mounting guest additions ISO...")
 		case "cd_files":
-			controllerName = "IDE Controller"
+			controllerName = "IDE"
 			port = 1
 			device = 1
 			if s.ISOInterface == "sata" {
-				controllerName = "SATA Controller"
+				controllerName = "SATA"
 				port = 15
 				device = 0
 			} else if s.ISOInterface == "virtio" {
-				controllerName = "VirtIO Controller"
+				controllerName = "VirtioSCSI"
 				port = 15
 				device = 0
 			}

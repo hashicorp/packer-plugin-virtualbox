@@ -63,7 +63,7 @@ func (s *StepAttachFloppy) Run(ctx context.Context, state multistep.StateBag) mu
 	// Create the floppy disk controller
 	command := []string{
 		"storagectl", vmName,
-		"--name", "Floppy Controller",
+		"--name", "Floppy",
 		"--add", "floppy",
 	}
 	if err := driver.VBoxManage(command...); err != nil {
@@ -74,7 +74,7 @@ func (s *StepAttachFloppy) Run(ctx context.Context, state multistep.StateBag) mu
 	// Attach the floppy to the controller
 	command = []string{
 		"storageattach", vmName,
-		"--storagectl", "Floppy Controller",
+		"--storagectl", "Floppy",
 		"--port", "0",
 		"--device", "0",
 		"--type", "fdd",
@@ -106,7 +106,7 @@ func (s *StepAttachFloppy) Cleanup(state multistep.StateBag) {
 
 	command := []string{
 		"storageattach", vmName,
-		"--storagectl", "Floppy Controller",
+		"--storagectl", "Floppy",
 		"--port", "0",
 		"--device", "0",
 		"--medium", "none",

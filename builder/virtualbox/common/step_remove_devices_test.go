@@ -43,7 +43,7 @@ func TestStepRemoveDevices_attachedIso(t *testing.T) {
 	diskUnmountCommands := map[string][]string{
 		"boot_iso": []string{
 			"storageattach", "myvm",
-			"--storagectl", "IDE Controller",
+			"--storagectl", "IDE",
 			"--port", "0",
 			"--device", "1",
 			"--type", "dvddrive",
@@ -67,7 +67,7 @@ func TestStepRemoveDevices_attachedIso(t *testing.T) {
 	if len(driver.VBoxManageCalls) != 1 {
 		t.Fatalf("bad: %#v", driver.VBoxManageCalls)
 	}
-	if driver.VBoxManageCalls[0][3] != "IDE Controller" {
+	if driver.VBoxManageCalls[0][3] != "IDE" {
 		t.Fatalf("bad: %#v", driver.VBoxManageCalls)
 	}
 }
@@ -79,7 +79,7 @@ func TestStepRemoveDevices_attachedIsoOnSata(t *testing.T) {
 	diskUnmountCommands := map[string][]string{
 		"boot_iso": []string{
 			"storageattach", "myvm",
-			"--storagectl", "SATA Controller",
+			"--storagectl", "SATA",
 			"--port", "0",
 			"--device", "1",
 			"--type", "dvddrive",
@@ -103,7 +103,7 @@ func TestStepRemoveDevices_attachedIsoOnSata(t *testing.T) {
 	if len(driver.VBoxManageCalls) != 1 {
 		t.Fatalf("bad: %#v", driver.VBoxManageCalls)
 	}
-	if driver.VBoxManageCalls[0][3] != "SATA Controller" {
+	if driver.VBoxManageCalls[0][3] != "SATA" {
 		t.Fatalf("bad: %#v", driver.VBoxManageCalls)
 	}
 }
@@ -129,10 +129,10 @@ func TestStepRemoveDevices_floppyPath(t *testing.T) {
 	if len(driver.VBoxManageCalls) != 2 {
 		t.Fatalf("bad: %#v", driver.VBoxManageCalls)
 	}
-	if driver.VBoxManageCalls[0][3] != "Floppy Controller" {
+	if driver.VBoxManageCalls[0][3] != "Floppy" {
 		t.Fatalf("bad: %#v", driver.VBoxManageCalls)
 	}
-	if driver.VBoxManageCalls[1][3] != "Floppy Controller" {
+	if driver.VBoxManageCalls[1][3] != "Floppy" {
 		t.Fatalf("bad: %#v", driver.VBoxManageCalls)
 	}
 }
