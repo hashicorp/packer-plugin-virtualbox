@@ -99,7 +99,11 @@ func (s *StepAttachFloppy) Cleanup(state multistep.StateBag) {
 	}
 
 	// Delete the floppy disk
-	defer os.Remove(s.floppyPath)
+	defer func() {
+		if err := os.Remove(s.floppyPath); err != nil && !os.IsNotExist(err) {
+			ui.Error(fmt.Sprintf("Error deleting floppy disk: %s. Not considering this a critical failure; build will continue.", err))
+		}
+	}()
 
 	driver := state.Get("driver").(Driver)
 	vmName := state.Get("vmName").(string)
