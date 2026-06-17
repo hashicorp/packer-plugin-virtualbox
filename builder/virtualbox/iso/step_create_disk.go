@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2013, 2025
 // SPDX-License-Identifier: MPL-2.0
 
 package iso
@@ -68,7 +68,7 @@ func (s *stepCreateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	// Add the IDE controller so we can later attach the disk.
 	// When the hard disk controller is not IDE, this device is still used
 	// by VirtualBox to deliver the guest extensions.
-	err := driver.VBoxManage("storagectl", vmName, "--name", "IDE Controller", "--add", "ide")
+	err := driver.VBoxManage("storagectl", vmName, "--name", "IDE", "--add", "ide")
 	if err != nil {
 		err := fmt.Errorf("Error creating disk controller: %s", err)
 		state.Put("error", err)
@@ -80,7 +80,7 @@ func (s *stepCreateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	// the IDE controller above because some other things (disks) require
 	// that.
 	if config.HardDriveInterface == "sata" || config.ISOInterface == "sata" {
-		if err := driver.CreateSATAController(vmName, "SATA Controller", config.SATAPortCount); err != nil {
+		if err := driver.CreateSATAController(vmName, "SATA", config.SATAPortCount); err != nil {
 			err := fmt.Errorf("Error creating disk controller: %s", err)
 			state.Put("error", err)
 			ui.Error(err.Error())
@@ -92,7 +92,7 @@ func (s *stepCreateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	// the VirtIO controller above because some other things (disks) require
 	// that.
 	if config.HardDriveInterface == "virtio" || config.ISOInterface == "virtio" {
-		if err := driver.CreateVirtIOController(vmName, "VirtIO Controller"); err != nil {
+		if err := driver.CreateVirtIOController(vmName, "VirtioSCSI"); err != nil {
 			err := fmt.Errorf("Error creating disk controller: %s", err)
 			state.Put("error", err)
 			ui.Error(err.Error())
@@ -101,14 +101,14 @@ func (s *stepCreateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	}
 
 	if config.HardDriveInterface == "scsi" {
-		if err := driver.CreateSCSIController(vmName, "SCSI Controller"); err != nil {
+		if err := driver.CreateSCSIController(vmName, "SCSI"); err != nil {
 			err := fmt.Errorf("Error creating disk controller: %s", err)
 			state.Put("error", err)
 			ui.Error(err.Error())
 			return multistep.ActionHalt
 		}
 	} else if config.HardDriveInterface == "pcie" {
-		if err := driver.CreateNVMeController(vmName, "NVMe Controller", config.NVMePortCount); err != nil {
+		if err := driver.CreateNVMeController(vmName, "NVMe", config.NVMePortCount); err != nil {
 			err := fmt.Errorf("Error creating NVMe controller: %s", err)
 			state.Put("error", err)
 			ui.Error(err.Error())
@@ -117,15 +117,15 @@ func (s *stepCreateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	}
 
 	// Attach the disk to the controller
-	controllerName := "IDE Controller"
+	controllerName := "IDE"
 	if config.HardDriveInterface == "sata" {
-		controllerName = "SATA Controller"
+		controllerName = "SATA"
 	} else if config.HardDriveInterface == "scsi" {
-		controllerName = "SCSI Controller"
+		controllerName = "SCSI"
 	} else if config.HardDriveInterface == "virtio" {
-		controllerName = "VirtIO Controller"
+		controllerName = "VirtioSCSI"
 	} else if config.HardDriveInterface == "pcie" {
-		controllerName = "NVMe Controller"
+		controllerName = "NVMe"
 	}
 
 	nonrotational := "off"

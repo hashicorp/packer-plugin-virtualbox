@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2013, 2025
 // SPDX-License-Identifier: MPL-2.0
 
 package common
@@ -42,7 +42,7 @@ func (s *StepShutdown) Run(ctx context.Context, state multistep.StateBag) multis
 	vmName := state.Get("vmName").(string)
 
 	if s.ACPIShutdown {
-		ui.Say("Shuting down the virtual machine via ACPI power button...")
+		ui.Say("Shutting down the virtual machine via ACPI power button...")
 		if err := driver.StopViaACPI(vmName); err != nil {
 			err := fmt.Errorf("Error stopping VM: %s", err)
 			state.Put("error", err)

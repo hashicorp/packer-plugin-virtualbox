@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2013, 2025
 // SPDX-License-Identifier: MPL-2.0
 
 package common
@@ -63,7 +63,7 @@ func (s *StepAttachFloppy) Run(ctx context.Context, state multistep.StateBag) mu
 	// Create the floppy disk controller
 	command := []string{
 		"storagectl", vmName,
-		"--name", "Floppy Controller",
+		"--name", "Floppy",
 		"--add", "floppy",
 	}
 	if err := driver.VBoxManage(command...); err != nil {
@@ -74,7 +74,7 @@ func (s *StepAttachFloppy) Run(ctx context.Context, state multistep.StateBag) mu
 	// Attach the floppy to the controller
 	command = []string{
 		"storageattach", vmName,
-		"--storagectl", "Floppy Controller",
+		"--storagectl", "Floppy",
 		"--port", "0",
 		"--device", "0",
 		"--type", "fdd",
@@ -99,14 +99,18 @@ func (s *StepAttachFloppy) Cleanup(state multistep.StateBag) {
 	}
 
 	// Delete the floppy disk
-	defer os.Remove(s.floppyPath)
+	defer func() {
+		if err := os.Remove(s.floppyPath); err != nil && !os.IsNotExist(err) {
+			ui.Error(fmt.Sprintf("Error deleting floppy disk: %s. Not considering this a critical failure; build will continue.", err))
+		}
+	}()
 
 	driver := state.Get("driver").(Driver)
 	vmName := state.Get("vmName").(string)
 
 	command := []string{
 		"storageattach", vmName,
-		"--storagectl", "Floppy Controller",
+		"--storagectl", "Floppy",
 		"--port", "0",
 		"--device", "0",
 		"--medium", "none",

@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2013, 2025
 // SPDX-License-Identifier: MPL-2.0
 
 package vm
@@ -56,6 +56,8 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&commonsteps.StepCreateFloppy{
 			Files:       b.config.FloppyConfig.FloppyFiles,
 			Directories: b.config.FloppyConfig.FloppyDirectories,
+			Content:     b.config.FloppyConfig.FloppyContent,
+			Label:       b.config.FloppyConfig.FloppyLabel,
 		},
 		&commonsteps.StepCreateCD{
 			Files:   b.config.CDConfig.CDFiles,

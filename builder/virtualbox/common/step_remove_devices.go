@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2013, 2025
 // SPDX-License-Identifier: MPL-2.0
 
 package common
@@ -38,7 +38,7 @@ func (s *StepRemoveDevices) Run(ctx context.Context, state multistep.StateBag) m
 		ui.Message("Removing floppy drive...")
 		command := []string{
 			"storageattach", vmName,
-			"--storagectl", "Floppy Controller",
+			"--storagectl", "Floppy",
 			"--port", "0",
 			"--device", "0",
 			"--medium", "none",
@@ -59,7 +59,7 @@ func (s *StepRemoveDevices) Run(ctx context.Context, state multistep.StateBag) m
 			// Don't forget to remove the floppy controller as well
 			command = []string{
 				"storagectl", vmName,
-				"--name", "Floppy Controller",
+				"--name", "Floppy",
 				"--remove",
 			}
 			err := driver.VBoxManage(command...)

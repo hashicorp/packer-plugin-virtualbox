@@ -74,6 +74,8 @@ necessary for this build to succeed and can be found further down the page.
 - `chipset` (string) - The chipset to be used: PIIX3 or ICH9.
   When set to piix3, the firmare is PIIX3. This is the default.
   When set to ich9, the firmare is ICH9.
+  When set to armv8, the firmare is ARMv8.
+  When set to armv8virtual, the firmare is ARMv8 Virtual.
 
 - `firmware` (string) - The firmware to be used: BIOS or EFI.
   When set to bios, the firmare is BIOS. This is the default.
@@ -98,16 +100,36 @@ necessary for this build to succeed and can be found further down the page.
   When set to Am79C973, the NICs are AMD PCNet-FAST III network card (Am79C973).
   When set to Am79C960, the NICs are AMD PCnet-ISA/NE2100 (Am79C960).
   When set to virtio, the NICs are VirtIO.
+  When set to usbnet, the NICs are USB Network.
 
 - `audio_controller` (string) - The audio controller type to be used.
   When set to ac97, the audio controller is ICH AC97. This is the default.
   When set to hda, the audio controller is Intel HD Audio.
   When set to sb16, the audio controller is SoundBlaster 16.
+  When set to none, the audio controller is disabled.
+
+- `usb_controller` (string) - The USB controller type to be used.
+  When set to ohci, the USB controller is USB 1.1 (OHCI).
+  When set to ehci, the USB controller is USB 2.0 (EHCI). This is the default when usb is enabled.
+  When set to xhci, the USB controller is USB 3.0 (xHCI).
+  When set to none, no USB controller is configured even if usb is enabled.
+  This setting is only used when usb is set to true.
+
+- `mouse` (string) - The mouse device type to be used.
+  When set to ps2, a PS/2 mouse is emulated. This is the default.
+  When set to usb, a USB mouse is emulated (requires USB to be enabled).
+  When set to usbtablet, a USB tablet device is emulated (absolute positioning, requires USB).
+  When set to usbmultitouch, a USB multi-touch device is emulated (requires USB).
+
+- `keyboard` (string) - The keyboard device type to be used.
+  When set to ps2, a PS/2 keyboard is emulated. This is the default.
+  When set to usb, a USB keyboard is emulated (requires USB to be enabled).
 
 - `gfx_controller` (string) - The graphics controller type to be used.
   When set to vboxvga, the graphics controller is VirtualBox VGA. This is the default.
   When set to vboxsvga, the graphics controller is VirtualBox SVGA.
   When set to vmsvga, the graphics controller is VMware SVGA.
+  When set to qemuramfb, the graphics controller is QEMU RAMFB.
   When set to none, the graphics controller is disabled.
   When this configuration is omitted, the default value is determined by VirtualBox.
 
@@ -964,9 +986,13 @@ used to do things such as set RAM, CPUs, etc.
   useful if, for example, packer hangs on a connection after a reboot.
   Example: `5m`. Disabled by default.
 
-- `ssh_remote_tunnels` ([]string) - 
+- `ssh_remote_tunnels` ([]string) - Remote tunnels forward a port from your local machine to the instance.
+  Format: ["REMOTE_PORT:LOCAL_HOST:LOCAL_PORT"]
+  Example: "9090:localhost:80" forwards localhost:9090 on your machine to port 80 on the instance.
 
-- `ssh_local_tunnels` ([]string) - 
+- `ssh_local_tunnels` ([]string) - Local tunnels forward a port from the instance to your local machine.
+  Format: ["LOCAL_PORT:REMOTE_HOST:REMOTE_PORT"]
+  Example: "8080:localhost:3000" allows the instance to access your local machine’s port 3000 via localhost:8080.
 
 <!-- End of code generated from the comments of the SSH struct in communicator/config.go; -->
 
@@ -1014,7 +1040,7 @@ used to do things such as set RAM, CPUs, etc.
 
 - `winrm_insecure` (bool) - If `true`, do not check server certificate chain and host name.
 
-- `winrm_use_ntlm` (bool) - If `true`, NTLMv2 authentication (with session security) will be used
+- `winrm_use_ntlm` (boolean) - If `true`, NTLMv2 authentication (with session security) will be used
   for WinRM, rather than default (basic authentication), removing the
   requirement for basic authentication to be enabled within the target
   guest. Further reading for remote connection authentication can be found
@@ -1069,7 +1095,11 @@ command, they will be replaced by the proper key:
 
 -   `<leftShift> <rightShift>` - Simulates pressing the shift key.
 
--   `<leftSuper> <rightSuper>` - Simulates pressing the ⌘ or Windows key.
+-   `<leftSuper> <rightSuper>` - Simulates pressing the super key.
+
+-   `<leftCommand> <rightCommand>` - Simulates pressing the ⌘ key.
+
+-   `<leftOption> <rightOption>` - Simulates pressing the ⌥ key.
 
   - `<wait> <wait5> <wait10>` - Adds a 1, 5 or 10 second pause before
     sending any additional keys. This is useful if you have to generally
