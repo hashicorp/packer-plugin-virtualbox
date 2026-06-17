@@ -1,3 +1,24 @@
+## 1.1.4 (June 16, 2026)
+
+### IMPROVEMENTS:
+
+* Added new VirtualBox hardware settings and configuration options.
+* Added ARMv8 chipset support.
+* Added missing floppy content handling when creating floppy media.
+* Aligned storage controller names used by VBoxManage operations for better compatibility.
+
+### BUG FIXES:
+
+* Fixed shutdown message typo for ACPI.
+* Updated plugin installation links in README.
+
+### DEPENDENCIES AND TOOLING:
+
+* Updated `github.com/hashicorp/packer-plugin-sdk` from `v0.6.1` to `v0.6.4`, and then to `v0.6.9`.
+* Updated `github.com/ulikunitz/xz` to `v0.5.15`.
+* Updated Go and linting/tooling configuration, including CI and release pipeline maintenance.
+* Added backport workflow support.
+
 ## 1.1.3 (August 5, 2025)
 
 ### IMPROVEMENTS:
