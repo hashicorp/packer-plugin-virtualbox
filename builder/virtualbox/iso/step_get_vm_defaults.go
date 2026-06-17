@@ -28,7 +28,11 @@ func (s *stepGetVMDefaults) Run(ctx context.Context, state multistep.StateBag) m
 
 	baseFolder := os.TempDir()
 	vmName := fmt.Sprintf("packer_temp_vm_%d", time.Now().Unix())
-	defer os.RemoveAll(filepath.Join(baseFolder, vmName))
+	defer func() {
+		if err := os.RemoveAll(filepath.Join(baseFolder, vmName)); err != nil && !os.IsNotExist(err) {
+			log.Printf("Error removing temporary VM directory: %s", err)
+		}
+	}()
 
 	// Create temp VM
 	command := []string{"createvm", "--name", vmName, "--ostype", config.GuestOSType, "--register", "--default", "--basefolder", baseFolder}

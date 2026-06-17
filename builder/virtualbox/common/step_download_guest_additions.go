@@ -152,7 +152,11 @@ func (s *StepDownloadGuestAdditions) downloadAdditionsSHA256(ctx context.Context
 			err))
 		return "", multistep.ActionHalt
 	}
-	defer os.Remove(checksumsFile.Name())
+	defer func() {
+		if err := os.Remove(checksumsFile.Name()); err != nil && !os.IsNotExist(err) {
+			log.Printf("Error deleting temporary guest additions checksum file: %s", err)
+		}
+	}()
 	checksumsFile.Close()
 
 	downStep := &commonsteps.StepDownload{
