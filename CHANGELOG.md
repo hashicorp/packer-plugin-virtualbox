@@ -1,3 +1,17 @@
+## 1.1.15 (July 14, 2026)
+
+### IMPROVEMENTS:
+
+* Refreshed repository-wide copyright header coverage across builder, step, and version files.
+
+### BUG FIXES:
+
+* No user-facing bug fixes in this release.
+
+### DEPENDENCIES AND TOOLING:
+
+* Updated `github.com/hashicorp/packer-plugin-sdk` from `v0.6.9` to `v0.6.10`.
+
 ## 1.1.4 (June 16, 2026)
 
 ### IMPROVEMENTS:
