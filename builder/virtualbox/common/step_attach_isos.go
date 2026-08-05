@@ -13,6 +13,7 @@ import (
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 
 	"strconv"
+	"strings"
 )
 
 // This step attaches the boot ISO, cd_files iso, and guest additions to the
@@ -22,8 +23,25 @@ type StepAttachISOs struct {
 	ISOInterface            string
 	GuestAdditionsMode      string
 	GuestAdditionsInterface string
-	diskUnmountCommands     map[string][]string
+	// Firmware is "bios" or "efi" (empty is treated as bios). EFI guests need
+	// ISOs on low SATA ports to be bootable — see sataBasePort below.
+	Firmware            string
+	diskUnmountCommands map[string][]string
 }
+
+// sataBasePortBIOS is the historical base port for ISO attachment. It is kept
+// for BIOS guests so existing builds are unaffected.
+const sataBasePortBIOS = 13
+
+// sataBasePortEFI is used for EFI guests. VirtualBox's EFI firmware does not
+// find a bootable device on the high SATA ports used for BIOS, so an EFI build
+// with a SATA-attached installer ISO never boots: the VM sits at a black
+// screen with an empty disk until the build times out waiting for SSH.
+// Attaching from port 1 (immediately after the boot disk on port 0) makes EFI
+// guests bootable.
+//
+// Refs: hashicorp/packer-plugin-virtualbox#39, #20
+const sataBasePortEFI = 1
 
 func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	// Check whether there is anything to attach
@@ -61,6 +79,13 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 	driver := state.Get("driver").(Driver)
 	vmName := state.Get("vmName").(string)
 
+	// EFI guests cannot boot from the historical high SATA ports; see the
+	// sataBasePortEFI comment. BIOS keeps its existing layout.
+	sataBase := sataBasePortBIOS
+	if strings.EqualFold(s.Firmware, "efi") {
+		sataBase = sataBasePortEFI
+	}
+
 	for diskCategory, isoPath := range diskMountMap {
 		// If it's a symlink, resolve it to its target.
 		resolvedIsoPath, err := filepath.EvalSymlinks(isoPath)
@@ -84,11 +109,11 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 			device = 1
 			if s.ISOInterface == "sata" {
 				controllerName = "SATA"
-				port = 13
+				port = sataBase
 				device = 0
 			} else if s.ISOInterface == "virtio" {
 				controllerName = "VirtioSCSI"
-				port = 13
+				port = sataBase
 				device = 0
 			}
 			ui.Message("Mounting boot ISO...")
@@ -98,11 +123,11 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 			device = 0
 			if s.GuestAdditionsInterface == "sata" {
 				controllerName = "SATA"
-				port = 14
+				port = sataBase + 1
 				device = 0
 			} else if s.GuestAdditionsInterface == "virtio" {
 				controllerName = "VirtioSCSI"
-				port = 14
+				port = sataBase + 1
 				device = 0
 			}
 			ui.Message("Mounting guest additions ISO...")
@@ -112,11 +137,11 @@ func (s *StepAttachISOs) Run(ctx context.Context, state multistep.StateBag) mult
 			device = 1
 			if s.ISOInterface == "sata" {
 				controllerName = "SATA"
-				port = 15
+				port = sataBase + 2
 				device = 0
 			} else if s.ISOInterface == "virtio" {
 				controllerName = "VirtioSCSI"
-				port = 15
+				port = sataBase + 2
 				device = 0
 			}
 			ui.Message("Mounting cd_files ISO...")

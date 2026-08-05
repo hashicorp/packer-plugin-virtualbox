@@ -479,6 +479,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			ISOInterface:            b.config.ISOInterface,
 			GuestAdditionsMode:      b.config.GuestAdditionsMode,
 			GuestAdditionsInterface: b.config.GuestAdditionsInterface,
+			Firmware:                b.config.Firmware,
 		},
 		&vboxcommon.StepConfigureVRDP{
 			VRDPBindAddress: b.config.VRDPBindAddress,
