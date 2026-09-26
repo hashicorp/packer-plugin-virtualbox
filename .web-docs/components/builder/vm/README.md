@@ -640,6 +640,8 @@ boot time.
   does not setup forwarded port mapping for communicator (SSH or WinRM) requests and uses ssh_port or winrm_port
   on the host to communicate to the virtual machine.
 
+- `ssh_listen_address` (string) - The address where the SSH port forwarding will be set to listen on. This value defaults to `127.0.0.1`.
+
 <!-- End of code generated from the comments of the CommConfig struct in builder/virtualbox/common/comm_config.go; -->
 
 

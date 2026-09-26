@@ -28,10 +28,11 @@ import (
 //
 // Produces:
 type StepPortForwarding struct {
-	CommConfig     *communicator.Config
-	HostPortMin    int
-	HostPortMax    int
-	SkipNatMapping bool
+	CommConfig       *communicator.Config
+	HostPortMin      int
+	HostPortMax      int
+	SkipNatMapping   bool
+	SSHListenAddress string
 
 	l *net.Listener
 }
@@ -133,10 +134,11 @@ func (s *StepPortForwarding) Run(ctx context.Context, state multistep.StateBag) 
 
 		// Create a forwarded port mapping to the VM
 		ui.Say(fmt.Sprintf("Creating forwarded port mapping for communicator (SSH, WinRM, etc) (host port %d)", commHostPort))
+
 		command = []string{
 			"modifyvm", vmName,
 			"--natpf1",
-			fmt.Sprintf("packercomm,tcp,127.0.0.1,%d,,%d", commHostPort, guestPort),
+			fmt.Sprintf("packercomm,tcp,%s,%d,,%d", s.SSHListenAddress, commHostPort, guestPort),
 		}
 		retried := false
 	retry:
