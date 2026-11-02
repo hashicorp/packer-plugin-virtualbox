@@ -1,4 +1,17 @@
-## 1.1.15 (July 14, 2026)
+## 1.1.6 (November 2, 2026)
+
+### IMPROVEMENTS:
+
+* Added `winrm_retry_interval` and `winrm_connect_timeout` communicator options to the `virtualbox-iso`, `virtualbox-ovf`, and `virtualbox-vm` builders (via `packer-plugin-sdk` update). [GH-195]
+
+### DEPENDENCIES AND TOOLING:
+
+* Updated `github.com/hashicorp/packer-plugin-sdk` from `v0.6.10` to `v0.6.13`. [GH-195] [GH-196] [GH-199]
+* Updated Go version from `1.25.11` to `1.26.10`. [GH-199]
+* Updated indirect dependencies, including `golang.org/x/crypto` to `v0.58.0` and `golang.org/x/net` to `v0.62.0`. [GH-196] [GH-199]
+* Pinned GitHub Actions workflow refs to the latest commit SHAs. [GH-193]
+
+## 1.1.5 (July 14, 2026)
 
 ### IMPROVEMENTS:
 
